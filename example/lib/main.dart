@@ -32,7 +32,7 @@ class _Scenario {
 
 final _scenarios = [
   _Scenario(
-    'Supervised 13–15',
+    'Supervised 13-15',
     AgeVerificationMockConfig(
       status: AgeSignalsStatus.supervised,
       ageLower: 13,
@@ -41,7 +41,7 @@ final _scenarios = [
     ),
   ),
   _Scenario(
-    'Supervised 16–17',
+    'Supervised 16-17',
     AgeVerificationMockConfig(
       status: AgeSignalsStatus.supervised,
       ageLower: 16,
@@ -51,10 +51,7 @@ final _scenarios = [
   ),
   _Scenario(
     'Verified 18+',
-    AgeVerificationMockConfig(
-      status: AgeSignalsStatus.verified,
-      ageLower: 18,
-    ),
+    AgeVerificationMockConfig(status: AgeSignalsStatus.verified, ageLower: 18),
   ),
   _Scenario(
     'Approval Pending',
@@ -246,9 +243,9 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
               Text(
                 'Mode: Mock — "${_scenarios[_selectedScenario].label}"',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.blue[700],
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: Colors.blue[700],
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ],
@@ -292,10 +289,9 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
               const Divider(height: 24),
               Text(
                 'Scenario',
-                style: Theme.of(context)
-                    .textTheme
-                    .labelLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Wrap(
@@ -337,9 +333,9 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
                   Text(
                     'Entitlement required',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Colors.orange[800],
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: Colors.orange[800],
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
@@ -381,9 +377,9 @@ class _ResultCard extends StatelessWidget {
                 Text(
                   'Result',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.green[700],
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: Colors.green[700],
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -392,12 +388,11 @@ class _ResultCard extends StatelessWidget {
             if (result.ageLower != null || result.ageUpper != null)
               _Row(
                 'Age range',
-                '${result.ageLower ?? '?'} – ${result.ageUpper ?? '?'}',
+                '${result.ageLower ?? '?'} - ${result.ageUpper ?? '?'}',
               ),
             if (result.source != null)
               _Row('Source', _sourceLabel(result.source!)),
-            if (result.installId != null)
-              _Row('Install ID', result.installId!),
+            if (result.installId != null) _Row('Install ID', result.installId!),
           ],
         ),
       ),
@@ -405,21 +400,20 @@ class _ResultCard extends StatelessWidget {
   }
 
   String _statusLabel(AgeSignalsStatus s) => switch (s) {
-        AgeSignalsStatus.verified => 'Verified — meets age requirement',
-        AgeSignalsStatus.supervised => 'Supervised — below age threshold',
-        AgeSignalsStatus.supervisedApprovalPending =>
-          'Supervised — approval pending',
-        AgeSignalsStatus.supervisedApprovalDenied =>
-          'Supervised — approval denied',
-        AgeSignalsStatus.declared => 'Declared — age self-declared via Play',
-        AgeSignalsStatus.declined => 'Declined — user chose not to share',
-        AgeSignalsStatus.unknown => 'Unknown — no signal available',
-      };
+    AgeSignalsStatus.verified => 'Verified — meets age requirement',
+    AgeSignalsStatus.supervised => 'Supervised — below age threshold',
+    AgeSignalsStatus.supervisedApprovalPending =>
+      'Supervised — approval pending',
+    AgeSignalsStatus.supervisedApprovalDenied => 'Supervised — approval denied',
+    AgeSignalsStatus.declared => 'Declared — age self-declared via Play',
+    AgeSignalsStatus.declined => 'Declined — user chose not to share',
+    AgeSignalsStatus.unknown => 'Unknown — no signal available',
+  };
 
   String _sourceLabel(AgeDeclarationSource s) => switch (s) {
-        AgeDeclarationSource.selfDeclared => 'Self declared',
-        AgeDeclarationSource.guardianDeclared => 'Guardian declared',
-      };
+    AgeDeclarationSource.selfDeclared => 'Self declared',
+    AgeDeclarationSource.guardianDeclared => 'Guardian declared',
+  };
 }
 
 // ---------------------------------------------------------------------------
