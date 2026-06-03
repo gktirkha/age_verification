@@ -1,5 +1,7 @@
 # age_verification
 
+[![pub version](https://img.shields.io/pub/v/age_verification)](https://pub.dev/packages/age_verification)
+
 A Flutter plugin for querying platform-level age signals on Android and iOS.
 
 - **Android** — Google Play Age Signals API (`com.google.android.play:age-signals:0.0.3`)
@@ -214,6 +216,10 @@ AgeVerificationMockConfig(
 // Unknown / not in applicable region
 AgeVerificationMockConfig(status: AgeSignalsStatus.unknown)
 ```
+
+### Android — how mock works internally
+
+On Android, `AgeVerificationMockConfig` is translated into an `AgeSignalsResult` and fed into Google's official `FakeAgeSignalsManager`. The result flows through the real `checkAgeSignals()` callback path, so the status-mapping logic is exercised identically to production. No additional gradle dependency is needed.
 
 ### Run integration tests
 
