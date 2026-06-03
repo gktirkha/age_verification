@@ -278,7 +278,7 @@ enum class AgeVerificationErrorCode(val raw: Int) {
   /** The installed Play Services SDK is too old to support Age Signals. */
   SDK_VERSION_OUTDATED(3),
   /** [AgeVerificationApi.verifyAge] was called before [AgeVerificationApi.initialize]. */
-  NOT_INITIALISED(4),
+  NOT_INITIALIZED(4),
   /** An unexpected error occurred during initialisation. */
   INIT_ERROR(5),
   /** An unclassified API error occurred. */

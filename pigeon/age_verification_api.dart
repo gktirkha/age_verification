@@ -177,7 +177,7 @@ enum AgeVerificationErrorCode {
   sdkVersionOutdated,
 
   /// [AgeVerificationApi.verifyAge] was called before [AgeVerificationApi.initialize].
-  notInitialised,
+  notInitialized,
 
   /// An unexpected error occurred during initialisation.
   initError,

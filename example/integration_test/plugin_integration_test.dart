@@ -73,7 +73,7 @@ void main() {
       await freshPlugin.verifyAge(null);
       // On iOS init() is a no-op so verifyAge may succeed (or return apiNotAvailable).
     } on PlatformException catch (e) {
-      // On Android the code will be NOT_INITIALIZED.
+      // On Android the code will be notInitialized.
       // On iOS it will be apiNotAvailable (iOS < 26) or another known code.
       final knownCodes = AgeVerificationErrorCode.values.map((c) => c.name);
       expect(knownCodes, contains(e.code));

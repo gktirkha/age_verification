@@ -5,7 +5,9 @@ import com.google.android.play.agesignals.AgeSignalsException
 import com.google.android.play.agesignals.AgeSignalsManager
 import com.google.android.play.agesignals.AgeSignalsManagerFactory
 import com.google.android.play.agesignals.AgeSignalsRequest
+import com.google.android.play.agesignals.AgeSignalsResult
 import com.google.android.play.agesignals.model.AgeSignalsVerificationStatus
+import com.google.android.play.agesignals.testing.FakeAgeSignalsManager
 
 class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi {
 
@@ -15,7 +17,7 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
     override fun initialize(mockConfig: AgeVerificationMockConfig?, callback: (Result<Unit>) -> Unit) {
         this.mockConfig = mockConfig
         if (mockConfig != null) {
-            // Mock mode — skip real manager initialisation.
+            // Mock mode — real manager not needed; FakeAgeSignalsManager is created per verifyAge call.
             callback(Result.success(Unit))
             return
         }
@@ -25,9 +27,7 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
         } catch (e: Exception) {
             callback(
                 Result.failure(
-                    FlutterError(
-                        AgeVerificationErrorCode.INIT_ERROR.name, e.message, null
-                    )
+                    FlutterError(AgeVerificationErrorCode.INIT_ERROR.name, e.message, null)
                 )
             )
         }
@@ -36,33 +36,48 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
     override fun verifyAge(
         ageGates: List<Long>?, callback: (Result<AgeVerificationResult>) -> Unit
     ) {
-        val manager = ageSignalsManager
-        if (manager == null) {
-            callback(
-                Result.failure(
-                    FlutterError(
-                        AgeVerificationErrorCode.NOT_INITIALISED.name,
-                        "Age Signals API is not available. Call initialize() first.",
-                        null,
-                    )
-                )
-            )
-            return
-        }
+        val manager: AgeSignalsManager
 
-        mockConfig?.let { mock ->
-            callback(
-                Result.success(
-                    AgeVerificationResult(
-                        status = mock.status,
-                        ageLower = mock.ageLower,
-                        ageUpper = mock.ageUpper,
-                        source = mock.source,
-                        installId = mock.installId,
+        val mock = mockConfig
+        if (mock != null) {
+            // Build a FakeAgeSignalsManager so the result goes through the same
+            // checkAgeSignals → addOnSuccessListener path as real production code.
+            val fakeStatus = when (mock.status) {
+                AgeSignalsStatus.VERIFIED -> AgeSignalsVerificationStatus.VERIFIED
+                AgeSignalsStatus.SUPERVISED -> AgeSignalsVerificationStatus.SUPERVISED
+                AgeSignalsStatus.SUPERVISED_APPROVAL_PENDING -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING
+                AgeSignalsStatus.SUPERVISED_APPROVAL_DENIED -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED
+                AgeSignalsStatus.DECLARED -> AgeSignalsVerificationStatus.DECLARED
+                else -> AgeSignalsVerificationStatus.UNKNOWN
+            }
+
+            val fakeResult = AgeSignalsResult.builder()
+                .setUserStatus(fakeStatus)
+                .apply {
+                    mock.ageLower?.let { setAgeLower(it.toInt()) }
+                    mock.ageUpper?.let { setAgeUpper(it.toInt()) }
+                    mock.installId?.let { setInstallId(it) }
+                }
+                .build()
+
+            val fakeManager = FakeAgeSignalsManager()
+            fakeManager.setNextAgeSignalsResult(fakeResult)
+            manager = fakeManager
+        } else {
+            val realManager = ageSignalsManager
+            if (realManager == null) {
+                callback(
+                    Result.failure(
+                        FlutterError(
+                            AgeVerificationErrorCode.NOT_INITIALIZED.name,
+                            "Age Signals API is not available. Call initialize() first.",
+                            null,
+                        )
                     )
                 )
-            )
-            return
+                return
+            }
+            manager = realManager
         }
 
         val request = AgeSignalsRequest.builder().build()

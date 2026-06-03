@@ -247,7 +247,7 @@ void main() {
     test('throws PlatformException on error reply', () async {
       mockError(
         _verifyAgeChannel,
-        code: 'NOT_INITIALISED',
+        code: 'NOT_INITIALIZED',
         message: 'Call init() first',
       );
 
@@ -255,7 +255,7 @@ void main() {
         AgeVerification().verifyAge(null),
         throwsA(
           isA<PlatformException>()
-              .having((e) => e.code, 'code', 'NOT_INITIALISED')
+              .having((e) => e.code, 'code', 'NOT_INITIALIZED')
               .having((e) => e.message, 'message', 'Call init() first'),
         ),
       );

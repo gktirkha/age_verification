@@ -54,7 +54,7 @@ void main() {
           'playServicesError',
           'networkError',
           'sdkVersionOutdated',
-          'notInitialised',
+          'notInitialized',
           'initError',
           'apiError',
         ]),
