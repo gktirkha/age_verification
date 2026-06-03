@@ -58,7 +58,9 @@ void main() {
     });
 
     test('encodes and decodes with null optional fields', () {
-      final result = AgeVerificationResult(status: AgeVerificationStatus.unknown);
+      final result = AgeVerificationResult(
+        status: AgeVerificationStatus.unknown,
+      );
       final decoded = AgeVerificationResult.decode(result.encode());
       expect(decoded.status, AgeVerificationStatus.unknown);
       expect(decoded.ageLower, isNull);
@@ -84,7 +86,9 @@ void main() {
     test('equality fails when status differs', () {
       expect(
         AgeVerificationResult(status: AgeVerificationStatus.verified),
-        isNot(equals(AgeVerificationResult(status: AgeVerificationStatus.declined))),
+        isNot(
+          equals(AgeVerificationResult(status: AgeVerificationStatus.declined)),
+        ),
       );
     });
 
@@ -179,7 +183,9 @@ void main() {
 
     test('sends message to the correct pigeon channel', () async {
       bool called = false;
-      final reply = AgeVerificationResult(status: AgeVerificationStatus.verified);
+      final reply = AgeVerificationResult(
+        status: AgeVerificationStatus.verified,
+      );
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMessageHandler(_verifyAgeChannel, (message) async {
             called = true;
@@ -192,7 +198,9 @@ void main() {
 
     test('forwards age gates to the channel', () async {
       List<Object?>? capturedArgs;
-      final reply = AgeVerificationResult(status: AgeVerificationStatus.verified);
+      final reply = AgeVerificationResult(
+        status: AgeVerificationStatus.verified,
+      );
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMessageHandler(_verifyAgeChannel, (message) async {
             capturedArgs = codec.decodeMessage(message) as List<Object?>;
@@ -206,7 +214,9 @@ void main() {
 
     test('forwards null age gates to the channel', () async {
       List<Object?>? capturedArgs;
-      final reply = AgeVerificationResult(status: AgeVerificationStatus.unknown);
+      final reply = AgeVerificationResult(
+        status: AgeVerificationStatus.unknown,
+      );
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMessageHandler(_verifyAgeChannel, (message) async {
             capturedArgs = codec.decodeMessage(message) as List<Object?>;

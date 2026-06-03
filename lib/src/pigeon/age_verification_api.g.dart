@@ -10,9 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
 Object? _extractReplyValueOrThrow(
-    List<Object?>? replyList,
-    String channelName, {
-    required bool isNullValid,
+  List<Object?>? replyList,
+  String channelName, {
+  required bool isNullValid,
 }) {
   if (replyList == null) {
     throw PlatformException(
@@ -46,8 +46,9 @@ bool _deepEquals(Object? a, Object? b) {
   }
   if (a is List && b is List) {
     return a.length == b.length &&
-        a.indexed
-            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+        a.indexed.every(
+          ((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]),
+        );
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -96,7 +97,6 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
-
 /// Outcome of an age verification request.
 enum AgeVerificationStatus {
   /// The platform confirms the user meets the minimum age requirement.
@@ -104,6 +104,7 @@ enum AgeVerificationStatus {
   /// Android: parental controls indicate the account is above the threshold.
   /// iOS: the declared age range satisfies all configured age gates.
   verified,
+
   /// The platform could not produce an age signal.
   ///
   /// Common reasons:
@@ -111,26 +112,31 @@ enum AgeVerificationStatus {
   /// - Verification data is unavailable for this account
   /// - The API is unsupported in the user's region
   unknown,
+
   /// The user chose not to share their age (iOS only).
   ///
   /// The user was prompted but explicitly declined to reveal their age
   /// range to the app.
   declined,
+
   /// The user is below the age threshold or under parental supervision.
   ///
   /// Android: the account is family-managed and does not meet the age
   /// requirement. iOS: the declared age range falls below the configured gates.
   supervised,
+
   /// Supervised user — guardian approval is pending (Android only).
   ///
   /// The account is family-managed and an access request has been dispatched
   /// to the guardian. The guardian has not yet responded.
   supervisedApprovalPending,
+
   /// Supervised user — guardian denied the request (Android only).
   ///
   /// The account is family-managed and the guardian has explicitly
   /// rejected the access request.
   supervisedApprovalDenied,
+
   /// Age was self-declared through Google Play (Android only).
   ///
   /// The user completed Google Play's age declaration flow.
@@ -142,6 +148,7 @@ enum AgeVerificationStatus {
 enum AgeDeclarationSource {
   /// The user declared their own age.
   selfDeclared,
+
   /// A guardian declared the age on the user's behalf via Family Sharing.
   guardianDeclared,
 }
@@ -150,16 +157,22 @@ enum AgeDeclarationSource {
 enum AgeVerificationErrorCode {
   /// The Age Signals API is not available on this device or region.
   apiNotAvailable,
+
   /// Google Play Services encountered an error.
   playServicesError,
+
   /// A network error prevented the request from completing.
   networkError,
+
   /// The installed Play Services SDK is too old to support Age Signals.
   sdkVersionOutdated,
+
   /// [AgeVerificationApi.verifyAge] was called before [AgeVerificationApi.initialize].
   notInitialized,
+
   /// An unexpected error occurred during initialisation.
   initError,
+
   /// An unclassified API error occurred.
   apiError,
 }
@@ -194,17 +207,12 @@ class AgeVerificationMockConfig {
   String? installId;
 
   List<Object?> _toList() {
-    return <Object?>[
-      status,
-      ageLower,
-      ageUpper,
-      source,
-      installId,
-    ];
+    return <Object?>[status, ageLower, ageUpper, source, installId];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static AgeVerificationMockConfig decode(Object result) {
     result as List<Object?>;
@@ -220,13 +228,18 @@ class AgeVerificationMockConfig {
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is! AgeVerificationMockConfig || other.runtimeType != runtimeType) {
+    if (other is! AgeVerificationMockConfig ||
+        other.runtimeType != runtimeType) {
       return false;
     }
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(status, other.status) && _deepEquals(ageLower, other.ageLower) && _deepEquals(ageUpper, other.ageUpper) && _deepEquals(source, other.source) && _deepEquals(installId, other.installId);
+    return _deepEquals(status, other.status) &&
+        _deepEquals(ageLower, other.ageLower) &&
+        _deepEquals(ageUpper, other.ageUpper) &&
+        _deepEquals(source, other.source) &&
+        _deepEquals(installId, other.installId);
   }
 
   @override
@@ -279,17 +292,12 @@ class AgeVerificationResult {
   String? installId;
 
   List<Object?> _toList() {
-    return <Object?>[
-      status,
-      ageLower,
-      ageUpper,
-      source,
-      installId,
-    ];
+    return <Object?>[status, ageLower, ageUpper, source, installId];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static AgeVerificationResult decode(Object result) {
     result as List<Object?>;
@@ -311,14 +319,17 @@ class AgeVerificationResult {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(status, other.status) && _deepEquals(ageLower, other.ageLower) && _deepEquals(ageUpper, other.ageUpper) && _deepEquals(source, other.source) && _deepEquals(installId, other.installId);
+    return _deepEquals(status, other.status) &&
+        _deepEquals(ageLower, other.ageLower) &&
+        _deepEquals(ageUpper, other.ageUpper) &&
+        _deepEquals(source, other.source) &&
+        _deepEquals(installId, other.installId);
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
 }
-
 
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
@@ -327,19 +338,19 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is AgeVerificationStatus) {
+    } else if (value is AgeVerificationStatus) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is AgeDeclarationSource) {
+    } else if (value is AgeDeclarationSource) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    }    else if (value is AgeVerificationErrorCode) {
+    } else if (value is AgeVerificationErrorCode) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    }    else if (value is AgeVerificationMockConfig) {
+    } else if (value is AgeVerificationMockConfig) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    }    else if (value is AgeVerificationResult) {
+    } else if (value is AgeVerificationResult) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else {
@@ -373,9 +384,13 @@ class AgeVerificationApi {
   /// Constructor for [AgeVerificationApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  AgeVerificationApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  AgeVerificationApi({
+    BinaryMessenger? binaryMessenger,
+    String messageChannelSuffix = '',
+  }) : pigeonVar_binaryMessenger = binaryMessenger,
+       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
+           ? '.$messageChannelSuffix'
+           : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -388,39 +403,43 @@ class AgeVerificationApi {
   /// supplied result from [verifyAge] without calling the native API.
   /// Omit [mockConfig] (or pass null) for real production behaviour.
   Future<void> initialize({AgeVerificationMockConfig? mockConfig}) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.age_verification.AgeVerificationApi.initialize$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.age_verification.AgeVerificationApi.initialize$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[mockConfig]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[mockConfig],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   Future<AgeVerificationResult> verifyAge(List<int>? ageGates) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.age_verification.AgeVerificationApi.verifyAge$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.age_verification.AgeVerificationApi.verifyAge$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[ageGates]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[ageGates],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as AgeVerificationResult;
   }
 }

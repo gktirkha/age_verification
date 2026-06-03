@@ -51,7 +51,10 @@ final _scenarios = [
   ),
   _Scenario(
     'Verified 18+',
-    AgeVerificationMockConfig(status: AgeVerificationStatus.verified, ageLower: 18),
+    AgeVerificationMockConfig(
+      status: AgeVerificationStatus.verified,
+      ageLower: 18,
+    ),
   ),
   _Scenario(
     'Approval Pending',
@@ -404,7 +407,8 @@ class _ResultCard extends StatelessWidget {
     AgeVerificationStatus.supervised => 'Supervised — below age threshold',
     AgeVerificationStatus.supervisedApprovalPending =>
       'Supervised — approval pending',
-    AgeVerificationStatus.supervisedApprovalDenied => 'Supervised — approval denied',
+    AgeVerificationStatus.supervisedApprovalDenied =>
+      'Supervised — approval denied',
     AgeVerificationStatus.declared => 'Declared — age self-declared via Play',
     AgeVerificationStatus.declined => 'Declined — user chose not to share',
     AgeVerificationStatus.unknown => 'Unknown — no signal available',
