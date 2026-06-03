@@ -37,7 +37,7 @@ No permissions or manifest entries are required. The API only returns data for u
 
 2. **iOS 26.0+** — the DeclaredAgeRange framework requires iOS 26. On older OS versions `verifyAge` returns an `apiNotAvailable` error.
 
-3. **Swift Package Manager** — this plugin uses SPM. CocoaPods is not supported.
+3. **Swift Package Manager** — this plugin uses SPM by default. A CocoaPods podspec is also provided for older Flutter tooling that does not support SPM.
 
 ---
 
@@ -121,7 +121,7 @@ Errors are thrown as `PlatformException`. The `code` field is the name of an `Ag
 | Code | Description |
 |---|---|
 | `apiNotAvailable` | API unavailable on this device or region (iOS < 26, sideloaded app, missing entitlement) |
-| `notInitialised` | `verifyAge` called before `init` (Android) |
+| `notInitialized` | `verifyAge` called before `init` (Android) |
 | `initError` | Manager could not be created (Play Services unavailable) |
 | `networkError` | No network connection |
 | `playServicesError` | Play Services or Play Store issue |
@@ -135,7 +135,7 @@ try {
   switch (e.code) {
     case 'apiNotAvailable':
       // Platform doesn't support age verification
-    case 'notInitialised':
+    case 'notInitialized':
       // Call init() first
     case 'networkError':
       // Ask user to check connectivity

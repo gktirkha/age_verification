@@ -1,3 +1,11 @@
+## 0.2.1
+
+### iOS
+* Added CocoaPods podspec (`ios/age_verification.podspec`) for compatibility with older Flutter tooling that does not support Swift Package Manager
+
+### Example
+* Fixed example iOS Xcode project to correctly reference the `age_verification` Swift Package Manager package
+
 ## 0.2.0
 
 ### Breaking changes
@@ -21,7 +29,7 @@ Initial working release.
 * Maps `AgeRangeDeclaration` (`.selfDeclared`, `.guardianDeclared`) to `AgeDeclarationSource`
 * Catches `AgeRangeService.Error.notAvailable` and `.invalidRequest` as typed errors
 * Returns `apiNotAvailable` on iOS < 26.0 or when DeclaredAgeRange is not linked
-* Uses Swift Package Manager — CocoaPods not supported
+* Uses Swift Package Manager (CocoaPods podspec added in 0.2.1)
 
 ### Dart
 * Type-safe pigeon channel: `AgeVerificationApi`, `AgeVerificationResult`, `AgeVerificationStatus`, `AgeDeclarationSource`, `AgeVerificationErrorCode`
