@@ -31,7 +31,7 @@ class AgeVerificationMockConfig {
   });
 
   /// The status to return from [AgeVerificationApi.verifyAge].
-  final AgeSignalsStatus status;
+  final AgeVerificationStatus status;
 
   /// Mocked inclusive lower bound of the age range.
   final int? ageLower;
@@ -76,7 +76,7 @@ class AgeVerificationResult {
   });
 
   /// The outcome of the age check as reported by the platform.
-  final AgeSignalsStatus status;
+  final AgeVerificationStatus status;
 
   /// Inclusive lower bound of the estimated age range.
   ///
@@ -107,7 +107,7 @@ class AgeVerificationResult {
 }
 
 /// Outcome of an age verification request.
-enum AgeSignalsStatus {
+enum AgeVerificationStatus {
   /// The platform confirms the user meets the minimum age requirement.
   ///
   /// Android: parental controls indicate the account is above the threshold.

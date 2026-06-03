@@ -54,7 +54,7 @@ await plugin.init();
 // 2. Query age signals
 try {
   final result = await plugin.verifyAge([13, 18]); // ageGates used on iOS only
-  print(result.status);   // AgeSignalsStatus
+  print(result.status);   // AgeVerificationStatus
   print(result.ageLower); // e.g. 13
   print(result.ageUpper); // e.g. 17
 } on PlatformException catch (e) {
@@ -87,13 +87,13 @@ Android ignores `ageGates` — age ranges are determined by Google Play parental
 
 | Field | Type | Description |
 |---|---|---|
-| `status` | `AgeSignalsStatus` | Outcome of the age check |
+| `status` | `AgeVerificationStatus` | Outcome of the age check |
 | `ageLower` | `int?` | Inclusive lower bound of the age range |
 | `ageUpper` | `int?` | Inclusive upper bound (`null` for open-ended ranges) |
 | `source` | `AgeDeclarationSource?` | Who provided the declaration (iOS only) |
 | `installId` | `String?` | Play-generated install identifier (Android only) |
 
-### AgeSignalsStatus values
+### AgeVerificationStatus values
 
 | Value | Description |
 |---|---|
@@ -166,7 +166,7 @@ Pass an `AgeVerificationMockConfig` to `init()` to bypass the native API entirel
 ```dart
 await plugin.init(
   mockConfig: AgeVerificationMockConfig(
-    status: AgeSignalsStatus.supervised,
+    status: AgeVerificationStatus.supervised,
     ageLower: 13,
     ageUpper: 15,
     installId: 'test-install-abc',
@@ -174,7 +174,7 @@ await plugin.init(
 );
 
 final result = await plugin.verifyAge([13, 18]);
-// result.status == AgeSignalsStatus.supervised
+// result.status == AgeVerificationStatus.supervised
 // result.ageLower == 13
 ```
 
@@ -190,31 +190,31 @@ await plugin.init(); // clears mock, uses real native API
 
 ```dart
 // Verified adult
-AgeVerificationMockConfig(status: AgeSignalsStatus.verified, ageLower: 18)
+AgeVerificationMockConfig(status: AgeVerificationStatus.verified, ageLower: 18)
 
 // Supervised teen (Android-style)
 AgeVerificationMockConfig(
-  status: AgeSignalsStatus.supervised,
+  status: AgeVerificationStatus.supervised,
   ageLower: 13,
   ageUpper: 15,
   installId: 'mock-install-id',
 )
 
 // Guardian approval pending
-AgeVerificationMockConfig(status: AgeSignalsStatus.supervisedApprovalPending)
+AgeVerificationMockConfig(status: AgeVerificationStatus.supervisedApprovalPending)
 
 // User declined to share (iOS-style)
-AgeVerificationMockConfig(status: AgeSignalsStatus.declined)
+AgeVerificationMockConfig(status: AgeVerificationStatus.declined)
 
 // Self-declared via iOS (with source)
 AgeVerificationMockConfig(
-  status: AgeSignalsStatus.verified,
+  status: AgeVerificationStatus.verified,
   ageLower: 18,
   source: AgeDeclarationSource.selfDeclared,
 )
 
 // Unknown / not in applicable region
-AgeVerificationMockConfig(status: AgeSignalsStatus.unknown)
+AgeVerificationMockConfig(status: AgeVerificationStatus.unknown)
 ```
 
 ### Android — how mock works internally

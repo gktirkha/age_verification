@@ -193,7 +193,7 @@ class FlutterError (
 ) : RuntimeException()
 
 /** Outcome of an age verification request. */
-enum class AgeSignalsStatus(val raw: Int) {
+enum class AgeVerificationStatus(val raw: Int) {
   /**
    * The platform confirms the user meets the minimum age requirement.
    *
@@ -247,7 +247,7 @@ enum class AgeSignalsStatus(val raw: Int) {
   DECLARED(6);
 
   companion object {
-    fun ofRaw(raw: Int): AgeSignalsStatus? {
+    fun ofRaw(raw: Int): AgeVerificationStatus? {
       return values().firstOrNull { it.raw == raw }
     }
   }
@@ -302,7 +302,7 @@ enum class AgeVerificationErrorCode(val raw: Int) {
  */
 data class AgeVerificationMockConfig (
   /** The status to return from [AgeVerificationApi.verifyAge]. */
-  val status: AgeSignalsStatus,
+  val status: AgeVerificationStatus,
   /** Mocked inclusive lower bound of the age range. */
   val ageLower: Long? = null,
   /** Mocked inclusive upper bound of the age range. */
@@ -315,7 +315,7 @@ data class AgeVerificationMockConfig (
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): AgeVerificationMockConfig {
-      val status = pigeonVar_list[0] as AgeSignalsStatus
+      val status = pigeonVar_list[0] as AgeVerificationStatus
       val ageLower = pigeonVar_list[1] as Long?
       val ageUpper = pigeonVar_list[2] as Long?
       val source = pigeonVar_list[3] as AgeDeclarationSource?
@@ -365,7 +365,7 @@ data class AgeVerificationMockConfig (
  */
 data class AgeVerificationResult (
   /** The outcome of the age check as reported by the platform. */
-  val status: AgeSignalsStatus,
+  val status: AgeVerificationStatus,
   /**
    * Inclusive lower bound of the estimated age range.
    *
@@ -401,7 +401,7 @@ data class AgeVerificationResult (
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): AgeVerificationResult {
-      val status = pigeonVar_list[0] as AgeSignalsStatus
+      val status = pigeonVar_list[0] as AgeVerificationStatus
       val ageLower = pigeonVar_list[1] as Long?
       val ageUpper = pigeonVar_list[2] as Long?
       val source = pigeonVar_list[3] as AgeDeclarationSource?
@@ -444,7 +444,7 @@ private open class AgeVerificationApiPigeonCodec : StandardMessageCodec() {
     return when (type) {
       129.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          AgeSignalsStatus.ofRaw(it.toInt())
+          AgeVerificationStatus.ofRaw(it.toInt())
         }
       }
       130.toByte() -> {
@@ -472,7 +472,7 @@ private open class AgeVerificationApiPigeonCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is AgeSignalsStatus -> {
+      is AgeVerificationStatus -> {
         stream.write(129)
         writeValue(stream, value.raw.toLong())
       }

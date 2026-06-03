@@ -34,7 +34,7 @@ final _scenarios = [
   _Scenario(
     'Supervised 13-15',
     AgeVerificationMockConfig(
-      status: AgeSignalsStatus.supervised,
+      status: AgeVerificationStatus.supervised,
       ageLower: 13,
       ageUpper: 15,
       installId: 'mock-install-001',
@@ -43,7 +43,7 @@ final _scenarios = [
   _Scenario(
     'Supervised 16-17',
     AgeVerificationMockConfig(
-      status: AgeSignalsStatus.supervised,
+      status: AgeVerificationStatus.supervised,
       ageLower: 16,
       ageUpper: 17,
       installId: 'mock-install-002',
@@ -51,12 +51,12 @@ final _scenarios = [
   ),
   _Scenario(
     'Verified 18+',
-    AgeVerificationMockConfig(status: AgeSignalsStatus.verified, ageLower: 18),
+    AgeVerificationMockConfig(status: AgeVerificationStatus.verified, ageLower: 18),
   ),
   _Scenario(
     'Approval Pending',
     AgeVerificationMockConfig(
-      status: AgeSignalsStatus.supervisedApprovalPending,
+      status: AgeVerificationStatus.supervisedApprovalPending,
       ageLower: 13,
       ageUpper: 15,
       installId: 'mock-install-003',
@@ -65,7 +65,7 @@ final _scenarios = [
   _Scenario(
     'Approval Denied',
     AgeVerificationMockConfig(
-      status: AgeSignalsStatus.supervisedApprovalDenied,
+      status: AgeVerificationStatus.supervisedApprovalDenied,
       ageLower: 13,
       ageUpper: 15,
       installId: 'mock-install-004',
@@ -74,18 +74,18 @@ final _scenarios = [
   _Scenario(
     'Declared',
     AgeVerificationMockConfig(
-      status: AgeSignalsStatus.declared,
+      status: AgeVerificationStatus.declared,
       ageLower: 13,
       ageUpper: 15,
     ),
   ),
   _Scenario(
     'Declined (iOS)',
-    AgeVerificationMockConfig(status: AgeSignalsStatus.declined),
+    AgeVerificationMockConfig(status: AgeVerificationStatus.declined),
   ),
   _Scenario(
     'Unknown',
-    AgeVerificationMockConfig(status: AgeSignalsStatus.unknown),
+    AgeVerificationMockConfig(status: AgeVerificationStatus.unknown),
   ),
 ];
 
@@ -399,15 +399,15 @@ class _ResultCard extends StatelessWidget {
     );
   }
 
-  String _statusLabel(AgeSignalsStatus s) => switch (s) {
-    AgeSignalsStatus.verified => 'Verified — meets age requirement',
-    AgeSignalsStatus.supervised => 'Supervised — below age threshold',
-    AgeSignalsStatus.supervisedApprovalPending =>
+  String _statusLabel(AgeVerificationStatus s) => switch (s) {
+    AgeVerificationStatus.verified => 'Verified — meets age requirement',
+    AgeVerificationStatus.supervised => 'Supervised — below age threshold',
+    AgeVerificationStatus.supervisedApprovalPending =>
       'Supervised — approval pending',
-    AgeSignalsStatus.supervisedApprovalDenied => 'Supervised — approval denied',
-    AgeSignalsStatus.declared => 'Declared — age self-declared via Play',
-    AgeSignalsStatus.declined => 'Declined — user chose not to share',
-    AgeSignalsStatus.unknown => 'Unknown — no signal available',
+    AgeVerificationStatus.supervisedApprovalDenied => 'Supervised — approval denied',
+    AgeVerificationStatus.declared => 'Declared — age self-declared via Play',
+    AgeVerificationStatus.declined => 'Declined — user chose not to share',
+    AgeVerificationStatus.unknown => 'Unknown — no signal available',
   };
 
   String _sourceLabel(AgeDeclarationSource s) => switch (s) {

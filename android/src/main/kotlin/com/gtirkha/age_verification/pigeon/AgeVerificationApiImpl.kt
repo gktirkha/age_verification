@@ -43,11 +43,11 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
             // Build a FakeAgeSignalsManager so the result goes through the same
             // checkAgeSignals → addOnSuccessListener path as real production code.
             val fakeStatus = when (mock.status) {
-                AgeSignalsStatus.VERIFIED -> AgeSignalsVerificationStatus.VERIFIED
-                AgeSignalsStatus.SUPERVISED -> AgeSignalsVerificationStatus.SUPERVISED
-                AgeSignalsStatus.SUPERVISED_APPROVAL_PENDING -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING
-                AgeSignalsStatus.SUPERVISED_APPROVAL_DENIED -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED
-                AgeSignalsStatus.DECLARED -> AgeSignalsVerificationStatus.DECLARED
+                AgeVerificationStatus.VERIFIED -> AgeSignalsVerificationStatus.VERIFIED
+                AgeVerificationStatus.SUPERVISED -> AgeSignalsVerificationStatus.SUPERVISED
+                AgeVerificationStatus.SUPERVISED_APPROVAL_PENDING -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING
+                AgeVerificationStatus.SUPERVISED_APPROVAL_DENIED -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED
+                AgeVerificationStatus.DECLARED -> AgeSignalsVerificationStatus.DECLARED
                 else -> AgeSignalsVerificationStatus.UNKNOWN
             }
 
@@ -84,12 +84,12 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
 
         manager.checkAgeSignals(request).addOnSuccessListener { ageSignalsResult ->
             val status = when (ageSignalsResult.userStatus()) {
-                AgeSignalsVerificationStatus.VERIFIED -> AgeSignalsStatus.VERIFIED
-                AgeSignalsVerificationStatus.SUPERVISED -> AgeSignalsStatus.SUPERVISED
-                AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING -> AgeSignalsStatus.SUPERVISED_APPROVAL_PENDING
-                AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED -> AgeSignalsStatus.SUPERVISED_APPROVAL_DENIED
-                AgeSignalsVerificationStatus.DECLARED -> AgeSignalsStatus.DECLARED
-                else -> AgeSignalsStatus.UNKNOWN
+                AgeSignalsVerificationStatus.VERIFIED -> AgeVerificationStatus.VERIFIED
+                AgeSignalsVerificationStatus.SUPERVISED -> AgeVerificationStatus.SUPERVISED
+                AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING -> AgeVerificationStatus.SUPERVISED_APPROVAL_PENDING
+                AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED -> AgeVerificationStatus.SUPERVISED_APPROVAL_DENIED
+                AgeSignalsVerificationStatus.DECLARED -> AgeVerificationStatus.DECLARED
+                else -> AgeVerificationStatus.UNKNOWN
             }
 
             callback(

@@ -1,6 +1,6 @@
 name: age_verification
 description: "A Flutter plugin for querying platform age signals via Google Play Age Signals on Android and Apple DeclaredAgeRange on iOS, for regional age verification compliance."
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/gktirkha/age_verification
 repository: https://github.com/gktirkha/age_verification
 

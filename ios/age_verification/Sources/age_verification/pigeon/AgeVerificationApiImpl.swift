@@ -131,7 +131,7 @@ class AgeVerificationApiImpl: AgeVerificationApi {
 
             let highestGate = sortedGates.max() ?? 0
             let lowerBound = range.lowerBound ?? 0
-            let status: AgeSignalsStatus = lowerBound >= highestGate ? .verified : .supervised
+            let status: AgeVerificationStatus = lowerBound >= highestGate ? .verified : .supervised
 
             completion(
               .success(

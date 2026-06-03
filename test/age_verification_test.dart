@@ -48,7 +48,7 @@ void main() {
   group('AgeVerificationResult', () {
     test('encodes and decodes all fields correctly', () {
       final result = AgeVerificationResult(
-        status: AgeSignalsStatus.verified,
+        status: AgeVerificationStatus.verified,
         ageLower: 18,
         ageUpper: 24,
         source: AgeDeclarationSource.selfDeclared,
@@ -58,9 +58,9 @@ void main() {
     });
 
     test('encodes and decodes with null optional fields', () {
-      final result = AgeVerificationResult(status: AgeSignalsStatus.unknown);
+      final result = AgeVerificationResult(status: AgeVerificationStatus.unknown);
       final decoded = AgeVerificationResult.decode(result.encode());
-      expect(decoded.status, AgeSignalsStatus.unknown);
+      expect(decoded.status, AgeVerificationStatus.unknown);
       expect(decoded.ageLower, isNull);
       expect(decoded.ageUpper, isNull);
       expect(decoded.source, isNull);
@@ -69,12 +69,12 @@ void main() {
 
     test('equality holds for identical values', () {
       final a = AgeVerificationResult(
-        status: AgeSignalsStatus.supervised,
+        status: AgeVerificationStatus.supervised,
         ageLower: 13,
         ageUpper: 17,
       );
       final b = AgeVerificationResult(
-        status: AgeSignalsStatus.supervised,
+        status: AgeVerificationStatus.supervised,
         ageLower: 13,
         ageUpper: 17,
       );
@@ -83,18 +83,18 @@ void main() {
 
     test('equality fails when status differs', () {
       expect(
-        AgeVerificationResult(status: AgeSignalsStatus.verified),
-        isNot(equals(AgeVerificationResult(status: AgeSignalsStatus.declined))),
+        AgeVerificationResult(status: AgeVerificationStatus.verified),
+        isNot(equals(AgeVerificationResult(status: AgeVerificationStatus.declined))),
       );
     });
 
     test('equality fails when ageLower differs', () {
       final a = AgeVerificationResult(
-        status: AgeSignalsStatus.supervised,
+        status: AgeVerificationStatus.supervised,
         ageLower: 13,
       );
       final b = AgeVerificationResult(
-        status: AgeSignalsStatus.supervised,
+        status: AgeVerificationStatus.supervised,
         ageLower: 18,
       );
       expect(a, isNot(equals(b)));
@@ -102,7 +102,7 @@ void main() {
 
     test('guardianDeclared source encodes and decodes', () {
       final result = AgeVerificationResult(
-        status: AgeSignalsStatus.verified,
+        status: AgeVerificationStatus.verified,
         source: AgeDeclarationSource.guardianDeclared,
       );
       expect(
@@ -179,7 +179,7 @@ void main() {
 
     test('sends message to the correct pigeon channel', () async {
       bool called = false;
-      final reply = AgeVerificationResult(status: AgeSignalsStatus.verified);
+      final reply = AgeVerificationResult(status: AgeVerificationStatus.verified);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMessageHandler(_verifyAgeChannel, (message) async {
             called = true;
@@ -192,7 +192,7 @@ void main() {
 
     test('forwards age gates to the channel', () async {
       List<Object?>? capturedArgs;
-      final reply = AgeVerificationResult(status: AgeSignalsStatus.verified);
+      final reply = AgeVerificationResult(status: AgeVerificationStatus.verified);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMessageHandler(_verifyAgeChannel, (message) async {
             capturedArgs = codec.decodeMessage(message) as List<Object?>;
@@ -206,7 +206,7 @@ void main() {
 
     test('forwards null age gates to the channel', () async {
       List<Object?>? capturedArgs;
-      final reply = AgeVerificationResult(status: AgeSignalsStatus.unknown);
+      final reply = AgeVerificationResult(status: AgeVerificationStatus.unknown);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMessageHandler(_verifyAgeChannel, (message) async {
             capturedArgs = codec.decodeMessage(message) as List<Object?>;
@@ -219,21 +219,21 @@ void main() {
 
     test('returns result with correct status', () async {
       final expected = AgeVerificationResult(
-        status: AgeSignalsStatus.supervised,
+        status: AgeVerificationStatus.supervised,
         ageLower: 13,
         ageUpper: 17,
       );
       mockSuccess(_verifyAgeChannel, reply: expected);
 
       final result = await AgeVerification().verifyAge(null);
-      expect(result.status, AgeSignalsStatus.supervised);
+      expect(result.status, AgeVerificationStatus.supervised);
       expect(result.ageLower, 13);
       expect(result.ageUpper, 17);
     });
 
     test('returns result with source and installId', () async {
       final expected = AgeVerificationResult(
-        status: AgeSignalsStatus.verified,
+        status: AgeVerificationStatus.verified,
         source: AgeDeclarationSource.guardianDeclared,
         installId: 'device-xyz',
       );

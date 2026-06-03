@@ -3,11 +3,11 @@ import 'package:age_verification/age_verification.dart';
 
 void main() {
   // ---------------------------------------------------------------------------
-  // AgeSignalsStatus
+  // AgeVerificationStatus
   // ---------------------------------------------------------------------------
-  group('AgeSignalsStatus', () {
+  group('AgeVerificationStatus', () {
     test('contains all expected values', () {
-      final names = AgeSignalsStatus.values.map((e) => e.name).toList();
+      final names = AgeVerificationStatus.values.map((e) => e.name).toList();
       expect(
         names,
         containsAll([
@@ -23,7 +23,7 @@ void main() {
     });
 
     test('has exactly 7 values', () {
-      expect(AgeSignalsStatus.values.length, 7);
+      expect(AgeVerificationStatus.values.length, 7);
     });
   });
 

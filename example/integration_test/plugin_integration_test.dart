@@ -37,7 +37,7 @@ void main() {
     // We accept any AgeVerificationResult or a known PlatformException.
     try {
       final result = await plugin.verifyAge(null);
-      expect(AgeSignalsStatus.values, contains(result.status));
+      expect(AgeVerificationStatus.values, contains(result.status));
     } on PlatformException catch (e) {
       final knownCodes = AgeVerificationErrorCode.values.map((c) => c.name);
       expect(
@@ -56,7 +56,7 @@ void main() {
 
     try {
       final result = await plugin.verifyAge([13, 18]);
-      expect(AgeSignalsStatus.values, contains(result.status));
+      expect(AgeVerificationStatus.values, contains(result.status));
     } on PlatformException catch (e) {
       final knownCodes = AgeVerificationErrorCode.values.map((c) => c.name);
       expect(knownCodes, contains(e.code));

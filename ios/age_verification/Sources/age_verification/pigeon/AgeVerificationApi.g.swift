@@ -175,7 +175,7 @@ func deepHashAgeVerificationApi(value: Any?, hasher: inout Hasher) {
 
 
 /// Outcome of an age verification request.
-enum AgeSignalsStatus: Int {
+enum AgeVerificationStatus: Int {
   /// The platform confirms the user meets the minimum age requirement.
   ///
   /// Android: parental controls indicate the account is above the threshold.
@@ -250,7 +250,7 @@ enum AgeVerificationErrorCode: Int {
 /// Generated class from Pigeon that represents data sent in messages.
 struct AgeVerificationMockConfig: Hashable {
   /// The status to return from [AgeVerificationApi.verifyAge].
-  var status: AgeSignalsStatus
+  var status: AgeVerificationStatus
   /// Mocked inclusive lower bound of the age range.
   var ageLower: Int64? = nil
   /// Mocked inclusive upper bound of the age range.
@@ -263,7 +263,7 @@ struct AgeVerificationMockConfig: Hashable {
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ pigeonVar_list: [Any?]) -> AgeVerificationMockConfig? {
-    let status = pigeonVar_list[0] as! AgeSignalsStatus
+    let status = pigeonVar_list[0] as! AgeVerificationStatus
     let ageLower: Int64? = nilOrValue(pigeonVar_list[1])
     let ageUpper: Int64? = nilOrValue(pigeonVar_list[2])
     let source: AgeDeclarationSource? = nilOrValue(pigeonVar_list[3])
@@ -312,7 +312,7 @@ struct AgeVerificationMockConfig: Hashable {
 /// Generated class from Pigeon that represents data sent in messages.
 struct AgeVerificationResult: Hashable {
   /// The outcome of the age check as reported by the platform.
-  var status: AgeSignalsStatus
+  var status: AgeVerificationStatus
   /// Inclusive lower bound of the estimated age range.
   ///
   /// iOS: present when the user grants permission to share their age bracket.
@@ -340,7 +340,7 @@ struct AgeVerificationResult: Hashable {
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ pigeonVar_list: [Any?]) -> AgeVerificationResult? {
-    let status = pigeonVar_list[0] as! AgeSignalsStatus
+    let status = pigeonVar_list[0] as! AgeVerificationStatus
     let ageLower: Int64? = nilOrValue(pigeonVar_list[1])
     let ageUpper: Int64? = nilOrValue(pigeonVar_list[2])
     let source: AgeDeclarationSource? = nilOrValue(pigeonVar_list[3])
@@ -386,7 +386,7 @@ private class AgeVerificationApiPigeonCodecReader: FlutterStandardReader {
     case 129:
       let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
       if let enumResultAsInt = enumResultAsInt {
-        return AgeSignalsStatus(rawValue: enumResultAsInt)
+        return AgeVerificationStatus(rawValue: enumResultAsInt)
       }
       return nil
     case 130:
@@ -413,7 +413,7 @@ private class AgeVerificationApiPigeonCodecReader: FlutterStandardReader {
 
 private class AgeVerificationApiPigeonCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
-    if let value = value as? AgeSignalsStatus {
+    if let value = value as? AgeVerificationStatus {
       super.writeByte(129)
       super.writeValue(value.rawValue)
     } else if let value = value as? AgeDeclarationSource {

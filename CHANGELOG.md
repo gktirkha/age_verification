@@ -1,3 +1,8 @@
+## 0.2.0
+
+### Breaking changes
+* Renamed `AgeSignalsStatus` → `AgeVerificationStatus` for naming consistency across the public API
+
 ## 0.1.0
 
 Initial working release.
@@ -19,7 +24,7 @@ Initial working release.
 * Uses Swift Package Manager — CocoaPods not supported
 
 ### Dart
-* Type-safe pigeon channel: `AgeVerificationApi`, `AgeVerificationResult`, `AgeSignalsStatus`, `AgeDeclarationSource`, `AgeVerificationErrorCode`
+* Type-safe pigeon channel: `AgeVerificationApi`, `AgeVerificationResult`, `AgeVerificationStatus`, `AgeDeclarationSource`, `AgeVerificationErrorCode`
 * Public API: `AgeVerification.init({mockConfig})` and `AgeVerification.verifyAge(ageGates)`
 * `AgeVerificationMockConfig` — pass to `init()` to bypass native APIs on both platforms for testing
 
