@@ -233,17 +233,24 @@ class AgeVerificationApiImpl: AgeVerificationApi {
         }
 #endif
     }
-    
+    @available(iOS 26.0, *)
     private func presentationViewController() -> UIViewController? {
-        let scene = UIApplication.shared.connectedScenes
+        // Primary: foreground active scene's key window.
+        let foregroundScene = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .first { $0.activationState == .foregroundActive }
-        if let root = scene?.windows.first(where: { $0.isKeyWindow })?.rootViewController {
+        if let root = foregroundScene?.keyWindow?.rootViewController {
             var top = root
             while let presented = top.presentedViewController { top = presented }
             return top
         }
-        if let root = UIApplication.shared.keyWindow?.rootViewController {
+        // Fallback: any connected scene that has a key window.
+        if let root = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .compactMap({ $0.keyWindow })
+            .first?
+            .rootViewController
+        {
             var top = root
             while let presented = top.presentedViewController { top = presented }
             return top

@@ -1,5 +1,8 @@
 ## 0.2.2
 
+### iOS
+* Replaced deprecated `UIApplication.keyWindow` and `UIWindowScene.windows` usage in `presentationViewController()` with `UIWindowScene.keyWindow` (available since iOS 15); primary path targets the foreground-active scene, fallback searches all connected scenes
+
 ### Housekeeping
 * Added `topics` to `pubspec.yaml` for pub.dev discoverability
 * Reformatted Android and iOS source files to consistent 4-space indentation (no logic changes)
