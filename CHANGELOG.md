@@ -1,3 +1,9 @@
+## 0.2.2
+
+### Housekeeping
+* Added `topics` to `pubspec.yaml` for pub.dev discoverability
+* Reformatted Android and iOS source files to consistent 4-space indentation (no logic changes)
+
 ## 0.2.1
 
 ### iOS

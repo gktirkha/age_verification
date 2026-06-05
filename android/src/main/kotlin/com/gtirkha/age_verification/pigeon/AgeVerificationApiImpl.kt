@@ -14,7 +14,10 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
     private var ageSignalsManager: AgeSignalsManager? = null
     private var mockConfig: AgeVerificationMockConfig? = null
 
-    override fun initialize(mockConfig: AgeVerificationMockConfig?, callback: (Result<Unit>) -> Unit) {
+    override fun initialize(
+        mockConfig: AgeVerificationMockConfig?,
+        callback: (Result<Unit>) -> Unit
+    ) {
         this.mockConfig = mockConfig
         if (mockConfig != null) {
             // Mock mode — real manager not needed; FakeAgeSignalsManager is created per verifyAge call.
@@ -51,14 +54,11 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
                 else -> AgeSignalsVerificationStatus.UNKNOWN
             }
 
-            val fakeResult = AgeSignalsResult.builder()
-                .setUserStatus(fakeStatus)
-                .apply {
+            val fakeResult = AgeSignalsResult.builder().setUserStatus(fakeStatus).apply {
                     mock.ageLower?.let { setAgeLower(it.toInt()) }
                     mock.ageUpper?.let { setAgeUpper(it.toInt()) }
                     mock.installId?.let { setInstallId(it) }
-                }
-                .build()
+                }.build()
 
             val fakeManager = FakeAgeSignalsManager()
             fakeManager.setNextAgeSignalsResult(fakeResult)
