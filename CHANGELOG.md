@@ -1,14 +1,10 @@
-## 0.2.3
-
-### Breaking changes
-* `verifyAge` parameter `ageGates` is now named instead of positional — call sites must be updated to `verifyAge(ageGates: [...])` or `verifyAge()`
-* `AgeVerification` is now a singleton — use `AgeVerification.instance` instead of constructing instances directly
-
-
 ## 0.2.2
 
 ### iOS
 * Replaced deprecated `UIApplication.keyWindow` and `UIWindowScene.windows` usage in `presentationViewController()` with `UIWindowScene.keyWindow` (available since iOS 15); primary path targets the foreground-active scene, fallback searches all connected scenes
+### Breaking changes
+* `verifyAge` parameter `ageGates` is now named instead of positional — call sites must be updated to `verifyAge(ageGates: [...])` or `verifyAge()`
+* `AgeVerification` is now a singleton — use `AgeVerification.instance` instead of constructing instances directly
 
 ### Housekeeping
 * Added `topics` to `pubspec.yaml` for pub.dev discoverability
