@@ -509,6 +509,7 @@ interface AgeVerificationApi {
    */
   fun initialize(mockConfig: AgeVerificationMockConfig?, callback: (Result<Unit>) -> Unit)
   fun verifyAge(ageGates: List<Long>?, callback: (Result<AgeVerificationResult>) -> Unit)
+  fun dispose()
 
   companion object {
     /** The codec used by AgeVerificationApi. */
@@ -553,6 +554,22 @@ interface AgeVerificationApi {
                 reply.reply(AgeVerificationApiPigeonUtils.wrapResult(data))
               }
             }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.age_verification.AgeVerificationApi.dispose$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              api.dispose()
+              listOf(null)
+            } catch (exception: Throwable) {
+              AgeVerificationApiPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)

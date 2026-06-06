@@ -131,4 +131,9 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
             )
         }
     }
+
+    override fun dispose() {
+        ageSignalsManager = null
+        mockConfig = null
+    }
 }

@@ -50,4 +50,19 @@ class AgeVerification {
   Future<AgeVerificationResult> verifyAge({List<int>? ageGates}) async {
     return await _api.verifyAge(ageGates: ageGates);
   }
+
+  /// Releases native resources and resets the singleton.
+  ///
+  /// On Android this tears down the Play Age Signals manager. On iOS there
+  /// is no native resource to release, but the call still completes successfully.
+  ///
+  /// After this returns, [instance] will create a fresh, uninitialized instance
+  /// on next access — call [init] again before calling [verifyAge].
+  ///
+  /// Throws a [PlatformException] if the native teardown fails; in that case
+  /// the singleton is preserved and can be used or disposed again.
+  Future<void> dispose() async {
+    await _api.dispose();
+    _instance = null;
+  }
 }

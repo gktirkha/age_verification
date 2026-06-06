@@ -62,5 +62,4 @@ void main() {
       expect(knownCodes, contains(e.code));
     }
   });
-
 }

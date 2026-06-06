@@ -233,6 +233,10 @@ class AgeVerificationApiImpl: AgeVerificationApi {
         }
 #endif
     }
+    func dispose() throws {
+        mockConfig = nil
+    }
+
     @available(iOS 26.0, *)
     private func presentationViewController() -> UIViewController? {
         // Primary: foreground active scene's key window.
