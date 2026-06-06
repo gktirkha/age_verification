@@ -57,7 +57,7 @@ abstract class AgeVerificationApi {
   void initialize({AgeVerificationMockConfig? mockConfig});
 
   @async
-  AgeVerificationResult verifyAge(List<int>? ageGates);
+  AgeVerificationResult verifyAge({List<int>? ageGates});
 }
 
 /// Data returned by the platform after querying age signals.

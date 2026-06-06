@@ -42,6 +42,6 @@ class AgeVerification {
   /// one of the [AgeVerificationErrorCode] names (e.g. `"networkError"`).
   /// Call [init] first or a `notInitialized` error is thrown.
   Future<AgeVerificationResult> verifyAge(List<int>? ageGates) async {
-    return await _api.verifyAge(ageGates);
+    return await _api.verifyAge(ageGates: ageGates);
   }
 }

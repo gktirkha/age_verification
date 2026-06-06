@@ -422,7 +422,7 @@ class AgeVerificationApi {
     );
   }
 
-  Future<AgeVerificationResult> verifyAge(List<int>? ageGates) async {
+  Future<AgeVerificationResult> verifyAge({List<int>? ageGates}) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.age_verification.AgeVerificationApi.verifyAge$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(

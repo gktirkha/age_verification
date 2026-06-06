@@ -1,3 +1,8 @@
+## 0.2.3
+
+### Breaking changes
+* `verifyAge` parameter `ageGates` is now named instead of positional — call sites must be updated to `verifyAge(ageGates: [...])` or `verifyAge()`
+
 ## 0.2.2
 
 ### iOS
