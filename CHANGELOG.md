@@ -2,6 +2,8 @@
 
 ### Breaking changes
 * `verifyAge` parameter `ageGates` is now named instead of positional — call sites must be updated to `verifyAge(ageGates: [...])` or `verifyAge()`
+* `AgeVerification` is now a singleton — use `AgeVerification.instance` instead of constructing instances directly
+
 
 ## 0.2.2
 

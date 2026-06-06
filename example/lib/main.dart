@@ -121,12 +121,6 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
     _initialize();
   }
 
-  @override
-  void dispose() {
-    _plugin.dispose();
-    super.dispose();
-  }
-
   Future<void> _initialize({AgeVerificationMockConfig? mockConfig}) async {
     setState(() {
       _loading = true;

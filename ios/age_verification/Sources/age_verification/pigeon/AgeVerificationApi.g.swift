@@ -458,7 +458,6 @@ protocol AgeVerificationApi {
   /// Omit [mockConfig] (or pass null) for real production behaviour.
   func initialize(mockConfig: AgeVerificationMockConfig?, completion: @escaping (Result<Void, Error>) -> Void)
   func verifyAge(ageGates: [Int64]?, completion: @escaping (Result<AgeVerificationResult, Error>) -> Void)
-  func dispose() throws
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -505,19 +504,6 @@ class AgeVerificationApiSetup {
       }
     } else {
       verifyAgeChannel.setMessageHandler(nil)
-    }
-    let disposeChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.age_verification.AgeVerificationApi.dispose\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      disposeChannel.setMessageHandler { _, reply in
-        do {
-          try api.dispose()
-          reply(wrapResult(nil))
-        } catch {
-          reply(wrapError(error))
-        }
-      }
-    } else {
-      disposeChannel.setMessageHandler(nil)
     }
   }
 }

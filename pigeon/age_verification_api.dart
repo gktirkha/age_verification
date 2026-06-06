@@ -58,8 +58,6 @@ abstract class AgeVerificationApi {
 
   @async
   AgeVerificationResult verifyAge({List<int>? ageGates});
-
-  void dispose();
 }
 
 /// Data returned by the platform after querying age signals.
