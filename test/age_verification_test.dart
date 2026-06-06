@@ -8,6 +8,8 @@ const _initChannel =
     'dev.flutter.pigeon.age_verification.AgeVerificationApi.initialize';
 const _verifyAgeChannel =
     'dev.flutter.pigeon.age_verification.AgeVerificationApi.verifyAge';
+const _disposeChannel =
+    'dev.flutter.pigeon.age_verification.AgeVerificationApi.dispose';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -284,6 +286,65 @@ void main() {
           ),
         ),
       );
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // AgeVerification.dispose
+  // ---------------------------------------------------------------------------
+  group('AgeVerification.dispose', () {
+    tearDown(() => clearMock(_disposeChannel));
+
+    test('sends message to the correct pigeon channel', () async {
+      bool called = false;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMessageHandler(_disposeChannel, (message) async {
+            called = true;
+            return codec.encodeMessage([null]);
+          });
+
+      await AgeVerification.instance.dispose();
+      expect(called, isTrue);
+    });
+
+    test('completes without error on success reply', () async {
+      mockSuccess(_disposeChannel);
+      await expectLater(AgeVerification.instance.dispose(), completes);
+    });
+
+    test('resets the singleton after successful dispose', () async {
+      final before = AgeVerification.instance;
+      mockSuccess(_disposeChannel);
+      await before.dispose();
+      expect(identical(before, AgeVerification.instance), isFalse);
+    });
+
+    test('throws PlatformException on error reply', () async {
+      mockError(
+        _disposeChannel,
+        code: 'DISPOSE_ERROR',
+        message: 'teardown failed',
+      );
+
+      await expectLater(
+        AgeVerification.instance.dispose(),
+        throwsA(
+          isA<PlatformException>()
+              .having((e) => e.code, 'code', 'DISPOSE_ERROR')
+              .having((e) => e.message, 'message', 'teardown failed'),
+        ),
+      );
+    });
+
+    test('preserves the singleton when dispose throws', () async {
+      final before = AgeVerification.instance;
+      mockError(_disposeChannel, code: 'DISPOSE_ERROR');
+      try {
+        await before.dispose();
+      } on PlatformException {
+        // expected
+      }
+      expect(identical(before, AgeVerification.instance), isTrue);
     });
   });
 }
