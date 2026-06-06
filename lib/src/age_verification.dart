@@ -8,10 +8,16 @@ import './pigeon/age_verification_api.g.dart';
 /// Both methods communicate with the native platform via Pigeon and may throw
 /// a [PlatformException] whose `code` maps to an [AgeVerificationErrorCode] value.
 class AgeVerification {
-  /// Creates an [AgeVerification] instance.
-  AgeVerification();
+  AgeVerification._();
 
-  static final _api = AgeVerificationApi();
+  /// The singleton instance of [AgeVerification].
+  ///
+  /// Created lazily on first access. Use this to call [init] and [verifyAge].
+  static AgeVerification get instance => _instance ??= ._();
+
+  static AgeVerification? _instance;
+
+  final _api = AgeVerificationApi();
 
   /// Initializes the underlying platform age signals manager.
   ///
@@ -41,7 +47,7 @@ class AgeVerification {
   /// Throws a [PlatformException] if the check fails. The `code` field will be
   /// one of the [AgeVerificationErrorCode] names (e.g. `"networkError"`).
   /// Call [init] first or a `notInitialized` error is thrown.
-  Future<AgeVerificationResult> verifyAge(List<int>? ageGates) async {
+  Future<AgeVerificationResult> verifyAge({List<int>? ageGates}) async {
     return await _api.verifyAge(ageGates: ageGates);
   }
 }

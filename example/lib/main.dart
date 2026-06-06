@@ -103,7 +103,7 @@ class AgeVerificationPage extends StatefulWidget {
 }
 
 class _AgeVerificationPageState extends State<AgeVerificationPage> {
-  final _plugin = AgeVerification();
+  final _plugin = AgeVerification.instance;
 
   bool _useMock = false;
   int _selectedScenario = 0;
@@ -145,7 +145,7 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
       _result = null;
     });
     try {
-      final result = await _plugin.verifyAge(_ageGates);
+      final result = await _plugin.verifyAge(ageGates: _ageGates);
       setState(() => _result = result);
     } on PlatformException catch (e) {
       setState(() => _error = '[${e.code}] ${e.message}');

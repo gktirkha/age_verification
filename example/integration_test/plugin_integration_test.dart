@@ -13,7 +13,7 @@ import 'package:age_verification/age_verification.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  final plugin = AgeVerification();
+  final plugin = AgeVerification.instance;
 
   // ---------------------------------------------------------------------------
   // init
@@ -36,7 +36,7 @@ void main() {
     // On iOS < 26 it will throw apiNotAvailable.
     // We accept any AgeVerificationResult or a known PlatformException.
     try {
-      final result = await plugin.verifyAge(null);
+      final result = await plugin.verifyAge();
       expect(AgeVerificationStatus.values, contains(result.status));
     } on PlatformException catch (e) {
       final knownCodes = AgeVerificationErrorCode.values.map((c) => c.name);
@@ -55,7 +55,7 @@ void main() {
     await plugin.init();
 
     try {
-      final result = await plugin.verifyAge([13, 18]);
+      final result = await plugin.verifyAge(ageGates: [13, 18]);
       expect(AgeVerificationStatus.values, contains(result.status));
     } on PlatformException catch (e) {
       final knownCodes = AgeVerificationErrorCode.values.map((c) => c.name);
@@ -63,20 +63,4 @@ void main() {
     }
   });
 
-  testWidgets('verifyAge before init returns a known error code on Android', (
-    tester,
-  ) async {
-    // Create a fresh plugin instance that has not been initialized.
-    final freshPlugin = AgeVerification();
-
-    try {
-      await freshPlugin.verifyAge(null);
-      // On iOS init() is a no-op so verifyAge may succeed (or return apiNotAvailable).
-    } on PlatformException catch (e) {
-      // On Android the code will be notInitialized.
-      // On iOS it will be apiNotAvailable (iOS < 26) or another known code.
-      final knownCodes = AgeVerificationErrorCode.values.map((c) => c.name);
-      expect(knownCodes, contains(e.code));
-    }
-  });
 }

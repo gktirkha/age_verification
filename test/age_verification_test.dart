@@ -130,13 +130,13 @@ void main() {
             return codec.encodeMessage([null]);
           });
 
-      await AgeVerification().init();
+      await AgeVerification.instance.init();
       expect(called, isTrue);
     });
 
     test('completes without error on success reply', () async {
       mockSuccess(_initChannel);
-      await expectLater(AgeVerification().init(), completes);
+      await expectLater(AgeVerification.instance.init(), completes);
     });
 
     test('throws PlatformException with correct code on error reply', () async {
@@ -147,7 +147,7 @@ void main() {
       );
 
       await expectLater(
-        AgeVerification().init(),
+        AgeVerification.instance.init(),
         throwsA(
           isA<PlatformException>()
               .having((e) => e.code, 'code', 'INIT_ERROR')
@@ -162,7 +162,7 @@ void main() {
         mockError(_initChannel, code: 'API_NOT_AVAILABLE');
 
         await expectLater(
-          AgeVerification().init(),
+          AgeVerification.instance.init(),
           throwsA(
             isA<PlatformException>().having(
               (e) => e.code,
@@ -192,7 +192,7 @@ void main() {
             return codec.encodeMessage([reply]);
           });
 
-      await AgeVerification().verifyAge(null);
+      await AgeVerification.instance.verifyAge();
       expect(called, isTrue);
     });
 
@@ -207,7 +207,7 @@ void main() {
             return codec.encodeMessage([reply]);
           });
 
-      await AgeVerification().verifyAge([13, 18]);
+      await AgeVerification.instance.verifyAge(ageGates: [13, 18]);
       expect(capturedArgs, isNotNull);
       expect(capturedArgs![0], equals([13, 18]));
     });
@@ -223,7 +223,7 @@ void main() {
             return codec.encodeMessage([reply]);
           });
 
-      await AgeVerification().verifyAge(null);
+      await AgeVerification.instance.verifyAge();
       expect(capturedArgs![0], isNull);
     });
 
@@ -235,7 +235,7 @@ void main() {
       );
       mockSuccess(_verifyAgeChannel, reply: expected);
 
-      final result = await AgeVerification().verifyAge(null);
+      final result = await AgeVerification.instance.verifyAge();
       expect(result.status, AgeVerificationStatus.supervised);
       expect(result.ageLower, 13);
       expect(result.ageUpper, 17);
@@ -249,7 +249,7 @@ void main() {
       );
       mockSuccess(_verifyAgeChannel, reply: expected);
 
-      final result = await AgeVerification().verifyAge(null);
+      final result = await AgeVerification.instance.verifyAge();
       expect(result.source, AgeDeclarationSource.guardianDeclared);
       expect(result.installId, 'device-xyz');
     });
@@ -262,7 +262,7 @@ void main() {
       );
 
       await expectLater(
-        AgeVerification().verifyAge(null),
+        AgeVerification.instance.verifyAge(),
         throwsA(
           isA<PlatformException>()
               .having((e) => e.code, 'code', 'NOT_INITIALIZED')
@@ -275,7 +275,7 @@ void main() {
       mockError(_verifyAgeChannel, code: 'NETWORK_ERROR');
 
       await expectLater(
-        AgeVerification().verifyAge(null),
+        AgeVerification.instance.verifyAge(),
         throwsA(
           isA<PlatformException>().having(
             (e) => e.code,
