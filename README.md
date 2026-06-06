@@ -46,14 +46,15 @@ No permissions or manifest entries are required. The API only returns data for u
 ```dart
 import 'package:age_verification/age_verification.dart';
 
-final plugin = AgeVerification();
+// AgeVerification is a singleton — always use .instance
+final plugin = AgeVerification.instance;
 
 // 1. Initialize once (e.g. in initState or app startup)
 await plugin.init();
 
 // 2. Query age signals
 try {
-  final result = await plugin.verifyAge([13, 18]); // ageGates used on iOS only
+  final result = await plugin.verifyAge(ageGates: [13, 18]); // ageGates used on iOS only
   print(result.status);   // AgeVerificationStatus
   print(result.ageLower); // e.g. 13
   print(result.ageUpper); // e.g. 17
@@ -68,13 +69,13 @@ Pass 1–3 integer age thresholds to `verifyAge`. The API shows a system prompt 
 
 ```dart
 // Single gate: am I 18 or over?
-await plugin.verifyAge([18]);
+await plugin.verifyAge(ageGates: [18]);
 
 // Two gates: under 13 / 13–17 / 18+
-await plugin.verifyAge([13, 18]);
+await plugin.verifyAge(ageGates: [13, 18]);
 
 // Three gates: under 13 / 13–15 / 16–17 / 18+
-await plugin.verifyAge([13, 16, 18]);
+await plugin.verifyAge(ageGates: [13, 16, 18]);
 ```
 
 Android ignores `ageGates` — age ranges are determined by Google Play parental controls.
@@ -130,7 +131,7 @@ Errors are thrown as `PlatformException`. The `code` field is the name of an `Ag
 
 ```dart
 try {
-  await plugin.verifyAge(null);
+  await plugin.verifyAge();
 } on PlatformException catch (e) {
   switch (e.code) {
     case 'apiNotAvailable':
@@ -173,7 +174,7 @@ await plugin.init(
   ),
 );
 
-final result = await plugin.verifyAge([13, 18]);
+final result = await plugin.verifyAge(ageGates: [13, 18]);
 // result.status == AgeVerificationStatus.supervised
 // result.ageLower == 13
 ```
