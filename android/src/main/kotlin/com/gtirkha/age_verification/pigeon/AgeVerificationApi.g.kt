@@ -508,7 +508,20 @@ interface AgeVerificationApi {
    * Omit [mockConfig] (or pass null) for real production behaviour.
    */
   fun initialize(mockConfig: AgeVerificationMockConfig?, callback: (Result<Unit>) -> Unit)
-  fun verifyAge(ageGates: List<Long>?, callback: (Result<AgeVerificationResult>) -> Unit)
+  /**
+   * Queries the platform for age signals and returns the result.
+   *
+   * [ageGates] is an optional list of age thresholds (e.g. `[13, 18]`) used
+   * on iOS to determine which age bracket the user falls into. Android ignores
+   * this parameter — age ranges are determined by Google Play parental controls.
+   *
+   * [skipEligibilityCheck] bypasses the `isEligibleForAgeFeatures` check on
+   * iOS 26.2+. When `true`, `requestAgeRange` is called directly without first
+   * awaiting `isEligibleForAgeFeatures` — useful if you experience hangs or
+   * unreliable results from that API in your region. Has no effect on Android.
+   * Defaults to `false` (existing behavior).
+   */
+  fun verifyAge(ageGates: List<Long>?, skipEligibilityCheck: Boolean, callback: (Result<AgeVerificationResult>) -> Unit)
 
   companion object {
     /** The codec used by AgeVerificationApi. */
@@ -544,7 +557,8 @@ interface AgeVerificationApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val ageGatesArg = args[0] as List<Long>?
-            api.verifyAge(ageGatesArg) { result: Result<AgeVerificationResult> ->
+            val skipEligibilityCheckArg = args[1] as Boolean
+            api.verifyAge(ageGatesArg, skipEligibilityCheckArg) { result: Result<AgeVerificationResult> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(AgeVerificationApiPigeonUtils.wrapError(error))

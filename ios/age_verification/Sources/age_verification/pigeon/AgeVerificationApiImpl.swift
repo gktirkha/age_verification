@@ -17,7 +17,7 @@ class AgeVerificationApiImpl: AgeVerificationApi {
     }
     
     func verifyAge(
-        ageGates: [Int64]?, completion: @escaping (Result<AgeVerificationResult, Error>) -> Void
+        ageGates: [Int64]?, skipEligibilityCheck: Bool, completion: @escaping (Result<AgeVerificationResult, Error>) -> Void
     ) {
         if let mock = mockConfig {
             completion(
@@ -34,7 +34,7 @@ class AgeVerificationApiImpl: AgeVerificationApi {
         
         if #available(iOS 26.0, *) {
 #if canImport(DeclaredAgeRange)
-            checkDeclaredAgeRange(ageGates: ageGates, completion: completion)
+            checkDeclaredAgeRange(ageGates: ageGates, skipEligibilityCheck: skipEligibilityCheck, completion: completion)
 #else
             completion(
                 .failure(
@@ -57,7 +57,7 @@ class AgeVerificationApiImpl: AgeVerificationApi {
     
     @available(iOS 26.0, *)
     private func checkDeclaredAgeRange(
-        ageGates: [Int64]?, completion: @escaping (Result<AgeVerificationResult, Error>) -> Void
+        ageGates: [Int64]?, skipEligibilityCheck: Bool, completion: @escaping (Result<AgeVerificationResult, Error>) -> Void
     ) {
 #if canImport(DeclaredAgeRange)
         let sortedGates = (ageGates ?? []).map { Int($0) }.sorted()
@@ -87,7 +87,8 @@ class AgeVerificationApiImpl: AgeVerificationApi {
         
         Task { @MainActor in
             // Check regional eligibility on iOS 26.2+; return unknown if ineligible.
-            if #available(iOS 26.2, *) {
+            // Skip this check when skipEligibilityCheck is true to avoid potential hangs.
+            if #available(iOS 26.2, *), !skipEligibilityCheck {
                 if let isEligible = try? await AgeRangeService.shared.isEligibleForAgeFeatures,
                    !isEligible
                 {

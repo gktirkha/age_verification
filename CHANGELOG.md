@@ -1,3 +1,8 @@
+## 0.2.4
+
+### iOS
+* Added `skipEligibilityCheck` parameter to `verifyAge` — when `true`, the `isEligibleForAgeFeatures` check on iOS 26.2+ is bypassed and `requestAgeRange` is called directly; useful if `isEligibleForAgeFeatures` hangs or is unreliable in your region. Has no effect on Android. Defaults to `false` (existing behavior).
+
 ## 0.2.3
 Updated Readme, No Code Changes
 
