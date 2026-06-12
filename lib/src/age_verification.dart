@@ -41,13 +41,24 @@ class AgeVerification {
   /// on iOS to determine which age bracket the user falls into. Android ignores
   /// this parameter — age ranges are determined by Google Play parental controls.
   ///
+  /// [skipEligibilityCheck] bypasses the `isEligibleForAgeFeatures` check on
+  /// iOS 26.2+. Set to `true` to skip the eligibility gate and call
+  /// `requestAgeRange` directly — useful if you find `isEligibleForAgeFeatures`
+  /// hangs or is unreliable in your region. Has no effect on Android.
+  ///
   /// Returns an [AgeVerificationResult] whose [AgeVerificationResult.status]
   /// indicates the outcome. Other fields are platform-specific and may be null.
   ///
   /// Throws a [PlatformException] if the check fails. The `code` field will be
   /// one of the [AgeVerificationErrorCode] names (e.g. `"networkError"`).
   /// Call [init] first or a `notInitialized` error is thrown.
-  Future<AgeVerificationResult> verifyAge({List<int>? ageGates}) async {
-    return await _api.verifyAge(ageGates: ageGates);
+  Future<AgeVerificationResult> verifyAge({
+    List<int>? ageGates,
+    bool skipEligibilityCheck = false,
+  }) async {
+    return await _api.verifyAge(
+      ageGates: ageGates,
+      skipEligibilityCheck: skipEligibilityCheck,
+    );
   }
 }

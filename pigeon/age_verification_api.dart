@@ -56,8 +56,22 @@ abstract class AgeVerificationApi {
   @async
   void initialize({AgeVerificationMockConfig? mockConfig});
 
+  /// Queries the platform for age signals and returns the result.
+  ///
+  /// [ageGates] is an optional list of age thresholds (e.g. `[13, 18]`) used
+  /// on iOS to determine which age bracket the user falls into. Android ignores
+  /// this parameter — age ranges are determined by Google Play parental controls.
+  ///
+  /// [skipEligibilityCheck] bypasses the `isEligibleForAgeFeatures` check on
+  /// iOS 26.2+. When `true`, `requestAgeRange` is called directly without first
+  /// awaiting `isEligibleForAgeFeatures` — useful if you experience hangs or
+  /// unreliable results from that API in your region. Has no effect on Android.
+  /// Defaults to `false` (existing behavior).
   @async
-  AgeVerificationResult verifyAge({List<int>? ageGates});
+  AgeVerificationResult verifyAge({
+    List<int>? ageGates,
+    bool skipEligibilityCheck = false,
+  });
 }
 
 /// Data returned by the platform after querying age signals.

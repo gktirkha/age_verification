@@ -80,6 +80,21 @@ await plugin.verifyAge(ageGates: [13, 16, 18]);
 
 Android ignores `ageGates` — age ranges are determined by Google Play parental controls.
 
+### Skipping the eligibility check (iOS 26.2+)
+
+On iOS 26.2+, `verifyAge` first awaits `AgeRangeService.shared.isEligibleForAgeFeatures` to determine whether the user is in a supported region. If ineligible, the user is never prompted and `unknown` is returned immediately.
+
+Some reports suggest this API can hang indefinitely. If you experience this, pass `skipEligibilityCheck: true` to call `requestAgeRange` directly without the eligibility gate:
+
+```dart
+final result = await plugin.verifyAge(
+  ageGates: [18],
+  skipEligibilityCheck: true, // bypasses isEligibleForAgeFeatures on iOS 26.2+
+);
+```
+
+The trade-off: users in non-applicable regions will be shown the age-sharing sheet even if the platform would not normally prompt them. Has no effect on Android.
+
 ---
 
 ## Result
@@ -156,7 +171,7 @@ try {
 
 ### iOS
 
-`init()` is a no-op. `verifyAge()` calls `AgeRangeService.shared.requestAgeRange(ageGates:in:)` which presents a system sheet asking the user to share their age range. On iOS 26.2+, `isEligibleForAgeFeatures` is checked first — users in non-applicable regions receive `unknown` status without being prompted.
+`init()` is a no-op. `verifyAge()` calls `AgeRangeService.shared.requestAgeRange(ageGates:in:)` which presents a system sheet asking the user to share their age range. On iOS 26.2+, `isEligibleForAgeFeatures` is checked first — users in non-applicable regions receive `unknown` status without being prompted. Pass `skipEligibilityCheck: true` to bypass this check and go straight to `requestAgeRange`.
 
 ---
 
