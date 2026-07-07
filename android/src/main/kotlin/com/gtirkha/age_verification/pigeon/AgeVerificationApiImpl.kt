@@ -109,13 +109,16 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
             val errorCode = if (exception is AgeSignalsException) {
                 when (exception.errorCode) {
                     AgeSignalsErrorCode.API_NOT_AVAILABLE -> AgeVerificationErrorCode.API_NOT_AVAILABLE
-                    AgeSignalsErrorCode.PLAY_STORE_NOT_FOUND -> AgeVerificationErrorCode.PLAY_SERVICES_ERROR
+                    AgeSignalsErrorCode.PLAY_STORE_NOT_FOUND -> AgeVerificationErrorCode.PLAY_STORE_NOT_FOUND
                     AgeSignalsErrorCode.NETWORK_ERROR -> AgeVerificationErrorCode.NETWORK_ERROR
-                    AgeSignalsErrorCode.PLAY_SERVICES_NOT_FOUND, AgeSignalsErrorCode.CANNOT_BIND_TO_SERVICE, AgeSignalsErrorCode.PLAY_STORE_VERSION_OUTDATED, AgeSignalsErrorCode.PLAY_SERVICES_VERSION_OUTDATED -> AgeVerificationErrorCode.PLAY_SERVICES_ERROR
-                    AgeSignalsErrorCode.CLIENT_TRANSIENT_ERROR -> AgeVerificationErrorCode.API_ERROR
-                    AgeSignalsErrorCode.APP_NOT_OWNED -> AgeVerificationErrorCode.API_NOT_AVAILABLE
+                    AgeSignalsErrorCode.PLAY_SERVICES_NOT_FOUND -> AgeVerificationErrorCode.PLAY_SERVICES_NOT_FOUND
+                    AgeSignalsErrorCode.CANNOT_BIND_TO_SERVICE -> AgeVerificationErrorCode.CANNOT_BIND_TO_SERVICE
+                    AgeSignalsErrorCode.PLAY_STORE_VERSION_OUTDATED -> AgeVerificationErrorCode.PLAY_STORE_VERSION_OUTDATED
+                    AgeSignalsErrorCode.PLAY_SERVICES_VERSION_OUTDATED -> AgeVerificationErrorCode.PLAY_SERVICES_VERSION_OUTDATED
+                    AgeSignalsErrorCode.CLIENT_TRANSIENT_ERROR -> AgeVerificationErrorCode.CLIENT_TRANSIENT_ERROR
+                    AgeSignalsErrorCode.APP_NOT_OWNED -> AgeVerificationErrorCode.APP_NOT_OWNED
                     AgeSignalsErrorCode.SDK_VERSION_OUTDATED -> AgeVerificationErrorCode.SDK_VERSION_OUTDATED
-                    AgeSignalsErrorCode.INTERNAL_ERROR -> AgeVerificationErrorCode.API_ERROR
+                    AgeSignalsErrorCode.INTERNAL_ERROR -> AgeVerificationErrorCode.INTERNAL_ERROR
                     else -> AgeVerificationErrorCode.API_ERROR
                 }
             } else {

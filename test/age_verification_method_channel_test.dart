@@ -51,9 +51,16 @@ void main() {
         names,
         containsAll([
           'apiNotAvailable',
-          'playServicesError',
+          'playStoreNotFound',
           'networkError',
+          'playServicesNotFound',
+          'cannotBindToService',
+          'playStoreVersionOutdated',
+          'playServicesVersionOutdated',
+          'clientTransientError',
+          'appNotOwned',
           'sdkVersionOutdated',
+          'internalError',
           'notInitialized',
           'initError',
           'apiError',
@@ -61,8 +68,8 @@ void main() {
       );
     });
 
-    test('has exactly 7 values', () {
-      expect(AgeVerificationErrorCode.values.length, 7);
+    test('has exactly 14 values', () {
+      expect(AgeVerificationErrorCode.values.length, 14);
     });
 
     test('enum names are non-empty camelCase strings', () {

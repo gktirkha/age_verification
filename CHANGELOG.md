@@ -1,3 +1,11 @@
+## 0.2.6
+
+### Android
+* Fixed a test typo (`NOT_INITIALISED` → `NOT_INITIALIZED`) that referenced a non-existent enum constant
+
+### Breaking changes
+* `AgeVerificationErrorCode.playServicesError` has been removed. It was a vague catch-all for five distinct `AgeSignalsErrorCode` conditions; each now has its own dedicated value: `playStoreNotFound`, `playServicesNotFound`, `cannotBindToService`, `playStoreVersionOutdated`, `playServicesVersionOutdated`. Two more Android-only conditions that previously fell back to `apiNotAvailable`/`apiError` now also have dedicated values: `clientTransientError`, `appNotOwned`, `internalError`. Together with the existing `apiNotAvailable`, `networkError`, and `sdkVersionOutdated`, every `AgeSignalsErrorCode` value now maps 1:1 to an `AgeVerificationErrorCode` value.
+
 ## 0.2.5
 
 ### Android

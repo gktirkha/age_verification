@@ -132,7 +132,7 @@ The trade-off: users in non-applicable regions will be shown the age-sharing she
 
 ## Error codes
 
-Errors are thrown as `PlatformException`. The `code` field is the name of an `AgeVerificationErrorCode` value:
+Errors are thrown as `PlatformException`. The `code` field is the name of an `AgeVerificationErrorCode` value. The Android-specific values mirror Google Play's [`AgeSignalsErrorCode`](https://developer.android.com/google/play/age-signals/reference/com/google/android/play/agesignals/model/AgeSignalsErrorCode) 1:1:
 
 | Code | Description |
 |---|---|
@@ -140,8 +140,15 @@ Errors are thrown as `PlatformException`. The `code` field is the name of an `Ag
 | `notInitialized` | `verifyAge` called before `init` (Android) |
 | `initError` | Manager could not be created (Play Services unavailable) |
 | `networkError` | No network connection |
-| `playServicesError` | Play Services or Play Store issue |
-| `sdkVersionOutdated` | Age Signals SDK version no longer supported |
+| `playStoreNotFound` | No Play Store app found on the device (Android) |
+| `playServicesNotFound` | Play Services is not available or too old (Android) |
+| `cannotBindToService` | Binding to the Play Store service failed (Android) |
+| `playStoreVersionOutdated` | The Play Store app needs to be updated (Android) |
+| `playServicesVersionOutdated` | Play Services needs to be updated (Android) |
+| `clientTransientError` | Transient error on the client device; retry (Android) |
+| `appNotOwned` | App was not installed by Google Play (Android) |
+| `sdkVersionOutdated` | Age Signals SDK version no longer supported (Android) |
+| `internalError` | Unknown internal error in the Age Signals API (Android) |
 | `apiError` | Unclassified error |
 
 ```dart

@@ -24,7 +24,7 @@ class AgeVerificationApiImplTest {
         assertNotNull(result)
         assertTrue(result!!.isFailure)
         val error = assertIs<FlutterError>(result!!.exceptionOrNull())
-        assertEquals(AgeVerificationErrorCode.NOT_INITIALISED.name, error.code)
+        assertEquals(AgeVerificationErrorCode.NOT_INITIALIZED.name, error.code)
     }
 
     @Test

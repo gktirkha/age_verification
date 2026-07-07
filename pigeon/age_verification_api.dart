@@ -177,18 +177,70 @@ enum AgeDeclarationSource {
 }
 
 /// Error codes reported when an age verification call fails.
+///
+/// The Android-specific values mirror Google Play's
+/// `AgeSignalsErrorCode` 1:1 so callers can react to the exact
+/// underlying condition instead of a lumped-together bucket.
 enum AgeVerificationErrorCode {
   /// The Age Signals API is not available on this device or region.
+  ///
+  /// Android: `AgeSignalsErrorCode.API_NOT_AVAILABLE`. The Play Store app
+  /// version installed on the device might be old; ask the user to update it.
   apiNotAvailable,
 
-  /// Google Play Services encountered an error.
-  playServicesError,
+  /// No Play Store app is found on the device (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.PLAY_STORE_NOT_FOUND`. Ask the user to
+  /// install or enable the Play Store.
+  playStoreNotFound,
 
   /// A network error prevented the request from completing.
   networkError,
 
+  /// Play Services is not available or its version is too old (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.PLAY_SERVICES_NOT_FOUND`. Ask the user to
+  /// install, update, or enable Play Services.
+  playServicesNotFound,
+
+  /// Binding to the service in the Play Store failed (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.CANNOT_BIND_TO_SERVICE`. Can be caused by
+  /// an old Play Store version or an overloaded device; retry with backoff.
+  cannotBindToService,
+
+  /// The Play Store app needs to be updated (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.PLAY_STORE_VERSION_OUTDATED`.
+  playStoreVersionOutdated,
+
+  /// Play Services needs to be updated (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.PLAY_SERVICES_VERSION_OUTDATED`.
+  playServicesVersionOutdated,
+
+  /// A transient error occurred on the client device (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.CLIENT_TRANSIENT_ERROR`. Retry with a
+  /// capped number of attempts before giving up.
+  clientTransientError,
+
+  /// The app was not installed by Google Play (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.APP_NOT_OWNED`. Ask the user to get the
+  /// app from Google Play.
+  appNotOwned,
+
   /// The installed Play Services SDK is too old to support Age Signals.
+  ///
+  /// Android: `AgeSignalsErrorCode.SDK_VERSION_OUTDATED`.
   sdkVersionOutdated,
+
+  /// An unknown internal error occurred (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.INTERNAL_ERROR`. Retry with a capped
+  /// number of attempts; if it persists, contact Play Developer support.
+  internalError,
 
   /// [AgeVerificationApi.verifyAge] was called before [AgeVerificationApi.initialize].
   notInitialized,
