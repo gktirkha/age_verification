@@ -1,3 +1,8 @@
+## 0.2.7
+
+### Dart
+* Added `AgeVerification.resolveErrorCode(String? code)` — resolves a raw `PlatformException.code` string into a typed `AgeVerificationErrorCode`, or `null` if it doesn't match a known value
+
 ## 0.2.6
 
 ### Android

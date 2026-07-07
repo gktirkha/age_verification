@@ -59,7 +59,7 @@ try {
   print(result.ageLower); // e.g. 13
   print(result.ageUpper); // e.g. 17
 } on PlatformException catch (e) {
-  print(e.code); // AgeVerificationErrorCode name, e.g. "apiNotAvailable"
+  print(AgeVerification.resolveErrorCode(e.code)); // AgeVerificationErrorCode, e.g. AgeVerificationErrorCode.apiNotAvailable
 }
 ```
 
@@ -155,12 +155,12 @@ Errors are thrown as `PlatformException`. The `code` field is the name of an `Ag
 try {
   await plugin.verifyAge();
 } on PlatformException catch (e) {
-  switch (e.code) {
-    case 'apiNotAvailable':
+  switch (AgeVerification.resolveErrorCode(e.code)) {
+    case AgeVerificationErrorCode.apiNotAvailable:
       // Platform doesn't support age verification
-    case 'notInitialized':
+    case AgeVerificationErrorCode.notInitialized:
       // Call init() first
-    case 'networkError':
+    case AgeVerificationErrorCode.networkError:
       // Ask user to check connectivity
     default:
       // Handle other errors

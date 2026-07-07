@@ -117,6 +117,36 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
+  // AgeVerification.resolveErrorCode
+  // ---------------------------------------------------------------------------
+  group('AgeVerification.resolveErrorCode', () {
+    test('resolves a known error code name to its enum value', () {
+      expect(
+        AgeVerification.resolveErrorCode('apiNotAvailable'),
+        AgeVerificationErrorCode.apiNotAvailable,
+      );
+    });
+
+    test('resolves every AgeVerificationErrorCode value by its name', () {
+      for (final code in AgeVerificationErrorCode.values) {
+        expect(AgeVerification.resolveErrorCode(code.name), code);
+      }
+    });
+
+    test('returns null for an unrecognized code', () {
+      expect(AgeVerification.resolveErrorCode('notARealCode'), isNull);
+    });
+
+    test('returns null for a null code', () {
+      expect(AgeVerification.resolveErrorCode(null), isNull);
+    });
+
+    test('is case-sensitive', () {
+      expect(AgeVerification.resolveErrorCode('APINOTAVAILABLE'), isNull);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // AgeVerification.init
   // ---------------------------------------------------------------------------
   group('AgeVerification.init', () {

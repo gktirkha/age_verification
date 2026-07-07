@@ -61,4 +61,15 @@ class AgeVerification {
       skipEligibilityCheck: skipEligibilityCheck,
     );
   }
+
+  /// Resolves a raw [PlatformException.code] string into an
+  /// [AgeVerificationErrorCode], or `null` if it doesn't match a known value.
+  static AgeVerificationErrorCode? resolveErrorCode(String? code) {
+    if (code == null) {
+      return null;
+    }
+    return AgeVerificationErrorCode.values
+        .cast<AgeVerificationErrorCode?>()
+        .firstWhere((value) => code == value?.name, orElse: () => null);
+  }
 }
