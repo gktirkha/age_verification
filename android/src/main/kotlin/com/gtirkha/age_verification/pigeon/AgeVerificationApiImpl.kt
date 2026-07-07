@@ -6,6 +6,7 @@ import com.google.android.play.agesignals.AgeSignalsManager
 import com.google.android.play.agesignals.AgeSignalsManagerFactory
 import com.google.android.play.agesignals.AgeSignalsRequest
 import com.google.android.play.agesignals.AgeSignalsResult
+import com.google.android.play.agesignals.model.AgeSignalsErrorCode
 import com.google.android.play.agesignals.model.AgeSignalsVerificationStatus
 import com.google.android.play.agesignals.testing.FakeAgeSignalsManager
 
@@ -107,14 +108,14 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
         }.addOnFailureListener { exception ->
             val errorCode = if (exception is AgeSignalsException) {
                 when (exception.errorCode) {
-                    -1 -> AgeVerificationErrorCode.API_NOT_AVAILABLE
-                    -2 -> AgeVerificationErrorCode.PLAY_SERVICES_ERROR
-                    -3 -> AgeVerificationErrorCode.NETWORK_ERROR
-                    -4, -5, -6, -7 -> AgeVerificationErrorCode.PLAY_SERVICES_ERROR
-                    -8 -> AgeVerificationErrorCode.API_ERROR
-                    -9 -> AgeVerificationErrorCode.API_NOT_AVAILABLE
-                    -10 -> AgeVerificationErrorCode.SDK_VERSION_OUTDATED
-                    -100 -> AgeVerificationErrorCode.API_ERROR
+                    AgeSignalsErrorCode.API_NOT_AVAILABLE -> AgeVerificationErrorCode.API_NOT_AVAILABLE
+                    AgeSignalsErrorCode.PLAY_STORE_NOT_FOUND -> AgeVerificationErrorCode.PLAY_SERVICES_ERROR
+                    AgeSignalsErrorCode.NETWORK_ERROR -> AgeVerificationErrorCode.NETWORK_ERROR
+                    AgeSignalsErrorCode.PLAY_SERVICES_NOT_FOUND, AgeSignalsErrorCode.CANNOT_BIND_TO_SERVICE, AgeSignalsErrorCode.PLAY_STORE_VERSION_OUTDATED, AgeSignalsErrorCode.PLAY_SERVICES_VERSION_OUTDATED -> AgeVerificationErrorCode.PLAY_SERVICES_ERROR
+                    AgeSignalsErrorCode.CLIENT_TRANSIENT_ERROR -> AgeVerificationErrorCode.API_ERROR
+                    AgeSignalsErrorCode.APP_NOT_OWNED -> AgeVerificationErrorCode.API_NOT_AVAILABLE
+                    AgeSignalsErrorCode.SDK_VERSION_OUTDATED -> AgeVerificationErrorCode.SDK_VERSION_OUTDATED
+                    AgeSignalsErrorCode.INTERNAL_ERROR -> AgeVerificationErrorCode.API_ERROR
                     else -> AgeVerificationErrorCode.API_ERROR
                 }
             } else {

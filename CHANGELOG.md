@@ -1,3 +1,8 @@
+## 0.2.5
+
+### Android
+* Fixed `AgeSignalsException` error code mapping to use the `AgeSignalsErrorCode` enum instead of hardcoded numeric literals, avoiding mismatches if the SDK's internal codes change
+
 ## 0.2.4
 
 ### iOS
