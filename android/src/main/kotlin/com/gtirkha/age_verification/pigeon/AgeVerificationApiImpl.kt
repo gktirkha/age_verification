@@ -48,7 +48,7 @@ class AgeVerificationApiImpl(
     }
 
     private fun initError(e: Throwable) =
-        FlutterError(AgeVerificationErrorCode.INIT_ERROR.name, e.message, null)
+        FlutterError(AgeVerificationErrorCode.INIT_ERROR.dartName, e.message, null)
 
     override fun verifyAge(
         ageGates: List<Long>?,
@@ -101,7 +101,7 @@ class AgeVerificationApiImpl(
             callback(
                 Result.failure(
                     FlutterError(
-                        AgeVerificationErrorCode.API_ERROR.name,
+                        AgeVerificationErrorCode.API_ERROR.dartName,
                         "requestAgeSignalsAccess() needs a foreground Activity, but the plugin is not attached to one.",
                         null,
                     )
@@ -132,7 +132,7 @@ class AgeVerificationApiImpl(
             callback(
                 Result.failure(
                     FlutterError(
-                        AgeVerificationErrorCode.NOT_INITIALIZED.name,
+                        AgeVerificationErrorCode.NOT_INITIALIZED.dartName,
                         "Age Signals API is not available. Call initialize() first.",
                         null,
                     )
@@ -241,10 +241,20 @@ class AgeVerificationApiImpl(
             }
 
             return FlutterError(
-                errorCode.name,
+                errorCode.dartName,
                 exception.message,
                 "Exception type: ${exception.javaClass.simpleName}",
             )
         }
     }
 }
+
+/**
+ * The Dart enum name for this code (e.g. `APP_NOT_OWNED` → `appNotOwned`), so
+ * `PlatformException.code` matches `AgeVerificationErrorCode.name` in Dart and
+ * the strings iOS sends.
+ */
+internal val AgeVerificationErrorCode.dartName: String
+    get() = name.lowercase().split('_').mapIndexed { i, part ->
+        if (i == 0) part else part.replaceFirstChar { it.uppercase() }
+    }.joinToString("")

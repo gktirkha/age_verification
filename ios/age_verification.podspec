@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'age_verification'
-  s.version          = '0.2.1'
+  s.version          = '0.2.7'
   s.summary          = 'Flutter plugin for querying platform age signals on Android and iOS.'
   s.description      = <<-DESC
 A Flutter plugin for querying platform age signals via Google Play Age Signals on Android

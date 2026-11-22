@@ -27,7 +27,7 @@ class AgeVerificationApiImplTest {
         assertNotNull(result)
         assertTrue(result!!.isFailure)
         val error = assertIs<FlutterError>(result!!.exceptionOrNull())
-        assertEquals(AgeVerificationErrorCode.NOT_INITIALIZED.name, error.code)
+        assertEquals("notInitialized", error.code)
     }
 
     @Test
@@ -57,7 +57,7 @@ class AgeVerificationApiImplTest {
         assertNotNull(result)
         assertTrue(result!!.isFailure)
         val error = assertIs<FlutterError>(result!!.exceptionOrNull())
-        assertEquals(AgeVerificationErrorCode.INIT_ERROR.name, error.code)
+        assertEquals("initError", error.code)
     }
 
     @Test
@@ -79,7 +79,7 @@ class AgeVerificationApiImplTest {
         impl.getApplicableAgeFeatures { result = it }
 
         val error = assertIs<FlutterError>(result!!.exceptionOrNull())
-        assertEquals(AgeVerificationErrorCode.NOT_INITIALIZED.name, error.code)
+        assertEquals("notInitialized", error.code)
     }
 
     @Test
@@ -90,7 +90,7 @@ class AgeVerificationApiImplTest {
         impl.requestAgeSignalsAccess { result = it }
 
         val error = assertIs<FlutterError>(result!!.exceptionOrNull())
-        assertEquals(AgeVerificationErrorCode.NOT_INITIALIZED.name, error.code)
+        assertEquals("notInitialized", error.code)
     }
 
     @Test
@@ -102,7 +102,7 @@ class AgeVerificationApiImplTest {
         impl.requestAgeSignalsAccess { result = it }
 
         val error = assertIs<FlutterError>(result!!.exceptionOrNull())
-        assertEquals(AgeVerificationErrorCode.API_ERROR.name, error.code)
+        assertEquals("apiError", error.code)
         assertTrue(error.message?.contains("Activity") == true)
     }
 
@@ -142,5 +142,17 @@ class AgeVerificationApiImplTest {
         )
         assertEquals(AgeSignalsAccessStatus.UNSPECIFIED, AgeVerificationApiImpl.mapAccessStatus(AgeSignalsStatus.UNSPECIFIED))
         assertEquals(AgeSignalsAccessStatus.UNSPECIFIED, AgeVerificationApiImpl.mapAccessStatus(null))
+    }
+
+    @Test
+    fun dartName_matchesDartEnumNames() {
+        // Must match AgeVerificationErrorCode.values.map((e) => e.name) in Dart.
+        val expected = listOf(
+            "apiNotAvailable", "playStoreNotFound", "networkError", "playServicesNotFound",
+            "cannotBindToService", "playStoreVersionOutdated", "playServicesVersionOutdated",
+            "clientTransientError", "appNotOwned", "sdkVersionOutdated", "deviceNotSupported",
+            "internalError", "notInitialized", "initError", "apiError",
+        )
+        assertEquals(expected, AgeVerificationErrorCode.entries.map { it.dartName })
     }
 }

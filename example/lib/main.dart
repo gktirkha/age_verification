@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:age_verification/age_verification.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 void main() {
@@ -90,6 +90,22 @@ final _scenarios = [
     'Unknown',
     AgeVerificationMockConfig(status: AgeVerificationStatus.unknown),
   ),
+  _Scenario(
+    'Mandatory: Not Shared',
+    AgeVerificationMockConfig(
+      status: AgeVerificationStatus.unknown,
+      accessStatus: AgeSignalsAccessStatus.notShared,
+      applicableAgeFeatures: [ApplicableAgeFeature.mandatorySharing],
+    ),
+  ),
+  _Scenario(
+    'Mandatory: Verification Required',
+    AgeVerificationMockConfig(
+      status: AgeVerificationStatus.unknown,
+      accessStatus: AgeSignalsAccessStatus.verificationRequired,
+      applicableAgeFeatures: [ApplicableAgeFeature.mandatorySharing],
+    ),
+  ),
 ];
 
 // ---------------------------------------------------------------------------
@@ -112,6 +128,8 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
   bool _loading = false;
   String? _error;
   AgeVerificationResult? _result;
+  List<ApplicableAgeFeature>? _features;
+  AgeSignalsAccessStatus? _accessStatus;
 
   static const _ageGates = [13, 18];
 
@@ -126,6 +144,8 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
       _loading = true;
       _error = null;
       _result = null;
+      _features = null;
+      _accessStatus = null;
       _initialized = false;
     });
     try {
@@ -147,6 +167,36 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
     try {
       final result = await _plugin.verifyAge(ageGates: _ageGates);
       setState(() => _result = result);
+    } on PlatformException catch (e) {
+      setState(() => _error = '[${e.code}] ${e.message}');
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _getApplicableAgeFeatures() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final features = await _plugin.getApplicableAgeFeatures();
+      setState(() => _features = features);
+    } on PlatformException catch (e) {
+      setState(() => _error = '[${e.code}] ${e.message}');
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _requestAgeSignalsAccess() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final status = await _plugin.requestAgeSignalsAccess();
+      setState(() => _accessStatus = status);
     } on PlatformException catch (e) {
       setState(() => _error = '[${e.code}] ${e.message}');
     } finally {
@@ -194,9 +244,33 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
             ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _initialized && !_loading
+                        ? _getApplicableAgeFeatures
+                        : null,
+                    child: const Text('Applicable Features'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _initialized && !_loading
+                        ? _requestAgeSignalsAccess
+                        : null,
+                    child: const Text('Request Access'),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
             if (_loading) const Center(child: CircularProgressIndicator()),
             if (_error != null) _ErrorCard(message: _error!),
+            if (_features != null || _accessStatus != null)
+              _AccessCard(features: _features, accessStatus: _accessStatus),
             if (_result != null) _ResultCard(result: _result!),
           ],
         ),
@@ -350,6 +424,45 @@ class _AgeVerificationPageState extends State<AgeVerificationPage> {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Access / features card
+// ---------------------------------------------------------------------------
+class _AccessCard extends StatelessWidget {
+  const _AccessCard({this.features, this.accessStatus});
+
+  final List<ApplicableAgeFeature>? features;
+  final AgeSignalsAccessStatus? accessStatus;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Age signals access',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (features != null)
+              _Row(
+                'Applicable features',
+                features!.isEmpty
+                    ? 'none'
+                    : features!.map((f) => f.name).join(', '),
+              ),
+            if (accessStatus != null) _Row('Access status', accessStatus!.name),
           ],
         ),
       ),

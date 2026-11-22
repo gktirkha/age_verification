@@ -1,6 +1,7 @@
 ## Unreleased
 
 ### Android
+* **Fixed:** error codes are now sent as the Dart `AgeVerificationErrorCode` name (e.g. `appNotOwned`), the same as iOS. They used to be the Kotlin name (`APP_NOT_OWNED`), so `AgeVerification.resolveErrorCode()` returned `null` for every Android error. Code that compared `PlatformException.code` against the old upper-case strings needs updating
 * Upgraded `com.google.android.play:age-signals` from 0.0.3 to 0.0.6
 * `AgeVerificationStatus` is now derived from `ageRangeSource` and `significantChangeStatus`, which replace `userStatus` (removed in age-signals 0.0.4): `TIER_C`/`TIER_D` → `verified`, `TIER_B` → `supervised`, `TIER_A` → `declared`, pending/declined significant change → `supervisedApprovalPending`/`supervisedApprovalDenied`, otherwise `unknown`
 * The plugin is now `ActivityAware`, which `requestAgeSignalsAccess()` needs to show the Play prompt

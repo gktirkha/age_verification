@@ -193,7 +193,7 @@ void main() {
     test(
       'throws PlatformException with apiNotAvailable on unavailable error',
       () async {
-        mockError(_initChannel, code: 'API_NOT_AVAILABLE');
+        mockError(_initChannel, code: 'apiNotAvailable');
 
         await expectLater(
           AgeVerification.instance.init(),
@@ -201,7 +201,7 @@ void main() {
             isA<PlatformException>().having(
               (e) => e.code,
               'code',
-              'API_NOT_AVAILABLE',
+              'apiNotAvailable',
             ),
           ),
         );
@@ -291,7 +291,7 @@ void main() {
     test('throws PlatformException on error reply', () async {
       mockError(
         _verifyAgeChannel,
-        code: 'NOT_INITIALIZED',
+        code: 'notInitialized',
         message: 'Call init() first',
       );
 
@@ -299,14 +299,14 @@ void main() {
         AgeVerification.instance.verifyAge(),
         throwsA(
           isA<PlatformException>()
-              .having((e) => e.code, 'code', 'NOT_INITIALIZED')
+              .having((e) => e.code, 'code', 'notInitialized')
               .having((e) => e.message, 'message', 'Call init() first'),
         ),
       );
     });
 
     test('throws PlatformException with network error code', () async {
-      mockError(_verifyAgeChannel, code: 'NETWORK_ERROR');
+      mockError(_verifyAgeChannel, code: 'networkError');
 
       await expectLater(
         AgeVerification.instance.verifyAge(),
@@ -314,7 +314,7 @@ void main() {
           isA<PlatformException>().having(
             (e) => e.code,
             'code',
-            'NETWORK_ERROR',
+            'networkError',
           ),
         ),
       );
