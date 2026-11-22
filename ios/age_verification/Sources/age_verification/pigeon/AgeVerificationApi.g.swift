@@ -210,8 +210,8 @@ enum AgeVerificationStatus: Int {
   case supervisedApprovalDenied = 5
   /// Age was self-declared through Google Play (Android only).
   ///
-  /// The user completed Google Play's age declaration flow.
-  /// Requires age-signals 0.0.3 or later.
+  /// The user provided their age to Google themselves; Google may or may
+  /// not have confirmed it (age-signals `AgeRangeSource.TIER_A`).
   case declared = 6
 }
 
@@ -273,17 +273,22 @@ enum AgeVerificationErrorCode: Int {
   ///
   /// Android: `AgeSignalsErrorCode.SDK_VERSION_OUTDATED`.
   case sdkVersionOutdated = 9
+  /// The device type is not supported by Age Signals (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.DEVICE_NOT_SUPPORTED`. Requires
+  /// age-signals 0.0.6 or later.
+  case deviceNotSupported = 10
   /// An unknown internal error occurred (Android only).
   ///
   /// Android: `AgeSignalsErrorCode.INTERNAL_ERROR`. Retry with a capped
   /// number of attempts; if it persists, contact Play Developer support.
-  case internalError = 10
+  case internalError = 11
   /// [AgeVerificationApi.verifyAge] was called before [AgeVerificationApi.initialize].
-  case notInitialized = 11
+  case notInitialized = 12
   /// An unexpected error occurred during initialisation.
-  case initError = 12
+  case initError = 13
   /// An unclassified API error occurred.
-  case apiError = 13
+  case apiError = 14
 }
 
 /// Mock result returned by [AgeVerificationApi.verifyAge] during testing.

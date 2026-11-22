@@ -139,8 +139,8 @@ enum AgeVerificationStatus {
 
   /// Age was self-declared through Google Play (Android only).
   ///
-  /// The user completed Google Play's age declaration flow.
-  /// Requires age-signals 0.0.3 or later.
+  /// The user provided their age to Google themselves; Google may or may
+  /// not have confirmed it (age-signals `AgeRangeSource.TIER_A`).
   declared,
 }
 
@@ -212,6 +212,12 @@ enum AgeVerificationErrorCode {
   ///
   /// Android: `AgeSignalsErrorCode.SDK_VERSION_OUTDATED`.
   sdkVersionOutdated,
+
+  /// The device type is not supported by Age Signals (Android only).
+  ///
+  /// Android: `AgeSignalsErrorCode.DEVICE_NOT_SUPPORTED`. Requires
+  /// age-signals 0.0.6 or later.
+  deviceNotSupported,
 
   /// An unknown internal error occurred (Android only).
   ///

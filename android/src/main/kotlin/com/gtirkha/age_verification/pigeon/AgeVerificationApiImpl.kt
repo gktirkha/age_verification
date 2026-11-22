@@ -6,8 +6,9 @@ import com.google.android.play.agesignals.AgeSignalsManager
 import com.google.android.play.agesignals.AgeSignalsManagerFactory
 import com.google.android.play.agesignals.AgeSignalsRequest
 import com.google.android.play.agesignals.AgeSignalsResult
+import com.google.android.play.agesignals.model.AgeRangeSource
 import com.google.android.play.agesignals.model.AgeSignalsErrorCode
-import com.google.android.play.agesignals.model.AgeSignalsVerificationStatus
+import com.google.android.play.agesignals.model.SignificantChangeStatus
 import com.google.android.play.agesignals.testing.FakeAgeSignalsManager
 
 class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi {
@@ -47,16 +48,20 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
         if (mock != null) {
             // Build a FakeAgeSignalsManager so the result goes through the same
             // checkAgeSignals → addOnSuccessListener path as real production code.
-            val fakeStatus = when (mock.status) {
-                AgeVerificationStatus.VERIFIED -> AgeSignalsVerificationStatus.VERIFIED
-                AgeVerificationStatus.SUPERVISED -> AgeSignalsVerificationStatus.SUPERVISED
-                AgeVerificationStatus.SUPERVISED_APPROVAL_PENDING -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING
-                AgeVerificationStatus.SUPERVISED_APPROVAL_DENIED -> AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED
-                AgeVerificationStatus.DECLARED -> AgeSignalsVerificationStatus.DECLARED
-                else -> AgeSignalsVerificationStatus.UNKNOWN
+            // age-signals 0.0.4+ removed userStatus; encode the mocked status as
+            // the ageRangeSource / significantChangeStatus pair that maps back to it.
+            val (fakeSource, fakeChange) = when (mock.status) {
+                AgeVerificationStatus.VERIFIED -> AgeRangeSource.TIER_C to null
+                AgeVerificationStatus.SUPERVISED -> AgeRangeSource.TIER_B to SignificantChangeStatus.APPROVED
+                AgeVerificationStatus.SUPERVISED_APPROVAL_PENDING -> AgeRangeSource.TIER_B to SignificantChangeStatus.PENDING
+                AgeVerificationStatus.SUPERVISED_APPROVAL_DENIED -> AgeRangeSource.TIER_B to SignificantChangeStatus.DECLINED
+                AgeVerificationStatus.DECLARED -> AgeRangeSource.TIER_A to null
+                else -> null to null
             }
 
-            val fakeResult = AgeSignalsResult.builder().setUserStatus(fakeStatus).apply {
+            val fakeResult = AgeSignalsResult.builder().apply {
+                fakeSource?.let { setAgeRangeSource(it) }
+                fakeChange?.let { setSignificantChangeStatus(it) }
                 mock.ageLower?.let { setAgeLower(it.toInt()) }
                 mock.ageUpper?.let { setAgeUpper(it.toInt()) }
                 mock.installId?.let { setInstallId(it) }
@@ -85,14 +90,10 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
         val request = AgeSignalsRequest.builder().build()
 
         manager.checkAgeSignals(request).addOnSuccessListener { ageSignalsResult ->
-            val status = when (ageSignalsResult.userStatus()) {
-                AgeSignalsVerificationStatus.VERIFIED -> AgeVerificationStatus.VERIFIED
-                AgeSignalsVerificationStatus.SUPERVISED -> AgeVerificationStatus.SUPERVISED
-                AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_PENDING -> AgeVerificationStatus.SUPERVISED_APPROVAL_PENDING
-                AgeSignalsVerificationStatus.SUPERVISED_APPROVAL_DENIED -> AgeVerificationStatus.SUPERVISED_APPROVAL_DENIED
-                AgeSignalsVerificationStatus.DECLARED -> AgeVerificationStatus.DECLARED
-                else -> AgeVerificationStatus.UNKNOWN
-            }
+            val status = mapStatus(
+                ageSignalsResult.ageRangeSource(),
+                ageSignalsResult.significantChangeStatus(),
+            )
 
             callback(
                 Result.success(
@@ -118,6 +119,7 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
                     AgeSignalsErrorCode.CLIENT_TRANSIENT_ERROR -> AgeVerificationErrorCode.CLIENT_TRANSIENT_ERROR
                     AgeSignalsErrorCode.APP_NOT_OWNED -> AgeVerificationErrorCode.APP_NOT_OWNED
                     AgeSignalsErrorCode.SDK_VERSION_OUTDATED -> AgeVerificationErrorCode.SDK_VERSION_OUTDATED
+                    AgeSignalsErrorCode.DEVICE_NOT_SUPPORTED -> AgeVerificationErrorCode.DEVICE_NOT_SUPPORTED
                     AgeSignalsErrorCode.INTERNAL_ERROR -> AgeVerificationErrorCode.INTERNAL_ERROR
                     else -> AgeVerificationErrorCode.API_ERROR
                 }
@@ -137,4 +139,29 @@ class AgeVerificationApiImpl(private val context: Context) : AgeVerificationApi 
         }
     }
 
+    companion object {
+        /**
+         * Derives the plugin's [AgeVerificationStatus] from the age-signals 0.0.4+
+         * fields that replaced the removed `userStatus()`.
+         *
+         * - A pending/declined significant change wins: the user is supervised and
+         *   the guardian hasn't approved / has denied it.
+         * - TIER_B: age is managed by a parent or guardian.
+         * - TIER_C / TIER_D: age was checked (credit card, ID, selfie, Digital ID…).
+         * - TIER_A: the user provided their age to Google themselves.
+         * - null / UNSPECIFIED: no signal shared.
+         */
+        internal fun mapStatus(ageRangeSource: Int?, significantChangeStatus: Int?): AgeVerificationStatus {
+            when (significantChangeStatus) {
+                SignificantChangeStatus.PENDING -> return AgeVerificationStatus.SUPERVISED_APPROVAL_PENDING
+                SignificantChangeStatus.DECLINED -> return AgeVerificationStatus.SUPERVISED_APPROVAL_DENIED
+            }
+            return when (ageRangeSource) {
+                AgeRangeSource.TIER_B -> AgeVerificationStatus.SUPERVISED
+                AgeRangeSource.TIER_C, AgeRangeSource.TIER_D -> AgeVerificationStatus.VERIFIED
+                AgeRangeSource.TIER_A -> AgeVerificationStatus.DECLARED
+                else -> AgeVerificationStatus.UNKNOWN
+            }
+        }
+    }
 }

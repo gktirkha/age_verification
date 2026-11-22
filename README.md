@@ -4,7 +4,7 @@
 
 A Flutter plugin for querying platform-level age signals on Android and iOS.
 
-- **Android** — Google Play Age Signals API (`com.google.android.play:age-signals:0.0.3`)
+- **Android** — Google Play Age Signals API (`com.google.android.play:age-signals:0.0.6`)
 - **iOS** — Apple DeclaredAgeRange framework (iOS 26.0+, requires entitlement)
 
 | Platform | API | Min version |
@@ -21,7 +21,7 @@ A Flutter plugin for querying platform-level age signals on Android and iOS.
 Add the Play Age Signals dependency to your app's `build.gradle`:
 
 ```groovy
-implementation("com.google.android.play:age-signals:0.0.3")
+implementation("com.google.android.play:age-signals:0.0.6")
 ```
 
 No permissions or manifest entries are required. The API only returns data for users in applicable jurisdictions (e.g. US states with age verification laws, Brazil).

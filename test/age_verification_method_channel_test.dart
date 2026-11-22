@@ -60,6 +60,7 @@ void main() {
           'clientTransientError',
           'appNotOwned',
           'sdkVersionOutdated',
+          'deviceNotSupported',
           'internalError',
           'notInitialized',
           'initError',
@@ -68,8 +69,8 @@ void main() {
       );
     });
 
-    test('has exactly 14 values', () {
-      expect(AgeVerificationErrorCode.values.length, 14);
+    test('has exactly 15 values', () {
+      expect(AgeVerificationErrorCode.values.length, 15);
     });
 
     test('enum names are non-empty camelCase strings', () {

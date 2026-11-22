@@ -74,5 +74,5 @@ kotlin {
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.23.0")
-    implementation("com.google.android.play:age-signals:0.0.3")
+    implementation("com.google.android.play:age-signals:0.0.6")
 }
