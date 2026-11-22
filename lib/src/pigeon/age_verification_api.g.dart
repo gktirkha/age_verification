@@ -97,6 +97,32 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
+/// Sharing status returned by [AgeVerificationApi.requestAgeSignalsAccess].
+///
+/// Mirrors Google Play's `AgeSignalsStatus`.
+enum AgeSignalsAccessStatus {
+  /// No status was reported (always the case on iOS).
+  unspecified,
+
+  /// The user shared their age signals with the app.
+  shared,
+
+  /// The user did not share their age signals with the app.
+  notShared,
+
+  /// The user must verify their age before signals can be shared. Occurs in
+  /// regions where sharing is mandatory.
+  verificationRequired,
+}
+
+/// An age-related feature that applies to the current user.
+///
+/// Mirrors Google Play's `ApplicableAgeFeature`.
+enum ApplicableAgeFeature {
+  /// Sharing age signals is mandatory for this user (e.g. a regulated region).
+  mandatorySharing,
+}
+
 /// Outcome of an age verification request.
 enum AgeVerificationStatus {
   /// The platform confirms the user meets the minimum age requirement.
@@ -243,6 +269,8 @@ enum AgeVerificationErrorCode {
 class AgeVerificationMockConfig {
   AgeVerificationMockConfig({
     required this.status,
+    this.accessStatus,
+    this.applicableAgeFeatures,
     this.ageLower,
     this.ageUpper,
     this.source,
@@ -251,6 +279,16 @@ class AgeVerificationMockConfig {
 
   /// The status to return from [AgeVerificationApi.verifyAge].
   AgeVerificationStatus status;
+
+  /// The status to return from [AgeVerificationApi.requestAgeSignalsAccess].
+  ///
+  /// Defaults to [AgeSignalsAccessStatus.shared] when null.
+  AgeSignalsAccessStatus? accessStatus;
+
+  /// The features to return from [AgeVerificationApi.getApplicableAgeFeatures].
+  ///
+  /// Defaults to an empty list when null.
+  List<ApplicableAgeFeature>? applicableAgeFeatures;
 
   /// Mocked inclusive lower bound of the age range.
   int? ageLower;
@@ -265,7 +303,15 @@ class AgeVerificationMockConfig {
   String? installId;
 
   List<Object?> _toList() {
-    return <Object?>[status, ageLower, ageUpper, source, installId];
+    return <Object?>[
+      status,
+      accessStatus,
+      applicableAgeFeatures,
+      ageLower,
+      ageUpper,
+      source,
+      installId,
+    ];
   }
 
   Object encode() {
@@ -276,10 +322,13 @@ class AgeVerificationMockConfig {
     result as List<Object?>;
     return AgeVerificationMockConfig(
       status: result[0]! as AgeVerificationStatus,
-      ageLower: result[1] as int?,
-      ageUpper: result[2] as int?,
-      source: result[3] as AgeDeclarationSource?,
-      installId: result[4] as String?,
+      accessStatus: result[1] as AgeSignalsAccessStatus?,
+      applicableAgeFeatures: (result[2] as List<Object?>?)
+          ?.cast<ApplicableAgeFeature>(),
+      ageLower: result[3] as int?,
+      ageUpper: result[4] as int?,
+      source: result[5] as AgeDeclarationSource?,
+      installId: result[6] as String?,
     );
   }
 
@@ -294,6 +343,8 @@ class AgeVerificationMockConfig {
       return true;
     }
     return _deepEquals(status, other.status) &&
+        _deepEquals(accessStatus, other.accessStatus) &&
+        _deepEquals(applicableAgeFeatures, other.applicableAgeFeatures) &&
         _deepEquals(ageLower, other.ageLower) &&
         _deepEquals(ageUpper, other.ageUpper) &&
         _deepEquals(source, other.source) &&
@@ -396,20 +447,26 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    } else if (value is AgeVerificationStatus) {
+    } else if (value is AgeSignalsAccessStatus) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    } else if (value is AgeDeclarationSource) {
+    } else if (value is ApplicableAgeFeature) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    } else if (value is AgeVerificationErrorCode) {
+    } else if (value is AgeVerificationStatus) {
       buffer.putUint8(131);
       writeValue(buffer, value.index);
-    } else if (value is AgeVerificationMockConfig) {
+    } else if (value is AgeDeclarationSource) {
       buffer.putUint8(132);
+      writeValue(buffer, value.index);
+    } else if (value is AgeVerificationErrorCode) {
+      buffer.putUint8(133);
+      writeValue(buffer, value.index);
+    } else if (value is AgeVerificationMockConfig) {
+      buffer.putUint8(134);
       writeValue(buffer, value.encode());
     } else if (value is AgeVerificationResult) {
-      buffer.putUint8(133);
+      buffer.putUint8(135);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -421,16 +478,22 @@ class _PigeonCodec extends StandardMessageCodec {
     switch (type) {
       case 129:
         final value = readValue(buffer) as int?;
-        return value == null ? null : AgeVerificationStatus.values[value];
+        return value == null ? null : AgeSignalsAccessStatus.values[value];
       case 130:
         final value = readValue(buffer) as int?;
-        return value == null ? null : AgeDeclarationSource.values[value];
+        return value == null ? null : ApplicableAgeFeature.values[value];
       case 131:
         final value = readValue(buffer) as int?;
-        return value == null ? null : AgeVerificationErrorCode.values[value];
+        return value == null ? null : AgeVerificationStatus.values[value];
       case 132:
-        return AgeVerificationMockConfig.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : AgeDeclarationSource.values[value];
       case 133:
+        final value = readValue(buffer) as int?;
+        return value == null ? null : AgeVerificationErrorCode.values[value];
+      case 134:
+        return AgeVerificationMockConfig.decode(readValue(buffer)!);
+      case 135:
         return AgeVerificationResult.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -513,5 +576,58 @@ class AgeVerificationApi {
       isNullValid: false,
     );
     return pigeonVar_replyValue! as AgeVerificationResult;
+  }
+
+  /// Returns the age-related features that apply to the current user.
+  ///
+  /// Android: wraps `AgeSignalsManager.getApplicableAgeFeatures()`. Contains
+  /// [ApplicableAgeFeature.mandatorySharing] when the user is in a region
+  /// where sharing age signals is mandatory; empty otherwise.
+  /// iOS: always returns an empty list (or the mocked value in mock mode).
+  Future<List<ApplicableAgeFeature>> getApplicableAgeFeatures() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.age_verification.AgeVerificationApi.getApplicableAgeFeatures$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return (pigeonVar_replyValue! as List<Object?>)
+        .cast<ApplicableAgeFeature>();
+  }
+
+  /// Shows the Google Play in-app prompt asking the user to share their age
+  /// range with this app, and returns the resulting sharing status.
+  ///
+  /// Android: wraps `AgeSignalsManager.requestAgeSignalsAccess()`. Call this
+  /// before [verifyAge] so `checkAgeSignals` has signals to return. Requires
+  /// the plugin to be attached to an Activity.
+  /// iOS: returns [AgeSignalsAccessStatus.unspecified] without prompting —
+  /// the iOS prompt is shown by [verifyAge] itself.
+  Future<AgeSignalsAccessStatus> requestAgeSignalsAccess() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.age_verification.AgeVerificationApi.requestAgeSignalsAccess$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as AgeSignalsAccessStatus;
   }
 }

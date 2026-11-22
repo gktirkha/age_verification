@@ -192,6 +192,47 @@ class FlutterError (
   val details: Any? = null
 ) : RuntimeException()
 
+/**
+ * Sharing status returned by [AgeVerificationApi.requestAgeSignalsAccess].
+ *
+ * Mirrors Google Play's `AgeSignalsStatus`.
+ */
+enum class AgeSignalsAccessStatus(val raw: Int) {
+  /** No status was reported (always the case on iOS). */
+  UNSPECIFIED(0),
+  /** The user shared their age signals with the app. */
+  SHARED(1),
+  /** The user did not share their age signals with the app. */
+  NOT_SHARED(2),
+  /**
+   * The user must verify their age before signals can be shared. Occurs in
+   * regions where sharing is mandatory.
+   */
+  VERIFICATION_REQUIRED(3);
+
+  companion object {
+    fun ofRaw(raw: Int): AgeSignalsAccessStatus? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
+/**
+ * An age-related feature that applies to the current user.
+ *
+ * Mirrors Google Play's `ApplicableAgeFeature`.
+ */
+enum class ApplicableAgeFeature(val raw: Int) {
+  /** Sharing age signals is mandatory for this user (e.g. a regulated region). */
+  MANDATORY_SHARING(0);
+
+  companion object {
+    fun ofRaw(raw: Int): ApplicableAgeFeature? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 /** Outcome of an age verification request. */
 enum class AgeVerificationStatus(val raw: Int) {
   /**
@@ -377,6 +418,18 @@ enum class AgeVerificationErrorCode(val raw: Int) {
 data class AgeVerificationMockConfig (
   /** The status to return from [AgeVerificationApi.verifyAge]. */
   val status: AgeVerificationStatus,
+  /**
+   * The status to return from [AgeVerificationApi.requestAgeSignalsAccess].
+   *
+   * Defaults to [AgeSignalsAccessStatus.shared] when null.
+   */
+  val accessStatus: AgeSignalsAccessStatus? = null,
+  /**
+   * The features to return from [AgeVerificationApi.getApplicableAgeFeatures].
+   *
+   * Defaults to an empty list when null.
+   */
+  val applicableAgeFeatures: List<ApplicableAgeFeature>? = null,
   /** Mocked inclusive lower bound of the age range. */
   val ageLower: Long? = null,
   /** Mocked inclusive upper bound of the age range. */
@@ -390,16 +443,20 @@ data class AgeVerificationMockConfig (
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): AgeVerificationMockConfig {
       val status = pigeonVar_list[0] as AgeVerificationStatus
-      val ageLower = pigeonVar_list[1] as Long?
-      val ageUpper = pigeonVar_list[2] as Long?
-      val source = pigeonVar_list[3] as AgeDeclarationSource?
-      val installId = pigeonVar_list[4] as String?
-      return AgeVerificationMockConfig(status, ageLower, ageUpper, source, installId)
+      val accessStatus = pigeonVar_list[1] as AgeSignalsAccessStatus?
+      val applicableAgeFeatures = pigeonVar_list[2] as List<ApplicableAgeFeature>?
+      val ageLower = pigeonVar_list[3] as Long?
+      val ageUpper = pigeonVar_list[4] as Long?
+      val source = pigeonVar_list[5] as AgeDeclarationSource?
+      val installId = pigeonVar_list[6] as String?
+      return AgeVerificationMockConfig(status, accessStatus, applicableAgeFeatures, ageLower, ageUpper, source, installId)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
       status,
+      accessStatus,
+      applicableAgeFeatures,
       ageLower,
       ageUpper,
       source,
@@ -414,12 +471,14 @@ data class AgeVerificationMockConfig (
       return true
     }
     val other = other as AgeVerificationMockConfig
-    return AgeVerificationApiPigeonUtils.deepEquals(this.status, other.status) && AgeVerificationApiPigeonUtils.deepEquals(this.ageLower, other.ageLower) && AgeVerificationApiPigeonUtils.deepEquals(this.ageUpper, other.ageUpper) && AgeVerificationApiPigeonUtils.deepEquals(this.source, other.source) && AgeVerificationApiPigeonUtils.deepEquals(this.installId, other.installId)
+    return AgeVerificationApiPigeonUtils.deepEquals(this.status, other.status) && AgeVerificationApiPigeonUtils.deepEquals(this.accessStatus, other.accessStatus) && AgeVerificationApiPigeonUtils.deepEquals(this.applicableAgeFeatures, other.applicableAgeFeatures) && AgeVerificationApiPigeonUtils.deepEquals(this.ageLower, other.ageLower) && AgeVerificationApiPigeonUtils.deepEquals(this.ageUpper, other.ageUpper) && AgeVerificationApiPigeonUtils.deepEquals(this.source, other.source) && AgeVerificationApiPigeonUtils.deepEquals(this.installId, other.installId)
   }
 
   override fun hashCode(): Int {
     var result = javaClass.hashCode()
     result = 31 * result + AgeVerificationApiPigeonUtils.deepHash(this.status)
+    result = 31 * result + AgeVerificationApiPigeonUtils.deepHash(this.accessStatus)
+    result = 31 * result + AgeVerificationApiPigeonUtils.deepHash(this.applicableAgeFeatures)
     result = 31 * result + AgeVerificationApiPigeonUtils.deepHash(this.ageLower)
     result = 31 * result + AgeVerificationApiPigeonUtils.deepHash(this.ageUpper)
     result = 31 * result + AgeVerificationApiPigeonUtils.deepHash(this.source)
@@ -518,25 +577,35 @@ private open class AgeVerificationApiPigeonCodec : StandardMessageCodec() {
     return when (type) {
       129.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          AgeVerificationStatus.ofRaw(it.toInt())
+          AgeSignalsAccessStatus.ofRaw(it.toInt())
         }
       }
       130.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          AgeDeclarationSource.ofRaw(it.toInt())
+          ApplicableAgeFeature.ofRaw(it.toInt())
         }
       }
       131.toByte() -> {
         return (readValue(buffer) as Long?)?.let {
-          AgeVerificationErrorCode.ofRaw(it.toInt())
+          AgeVerificationStatus.ofRaw(it.toInt())
         }
       }
       132.toByte() -> {
+        return (readValue(buffer) as Long?)?.let {
+          AgeDeclarationSource.ofRaw(it.toInt())
+        }
+      }
+      133.toByte() -> {
+        return (readValue(buffer) as Long?)?.let {
+          AgeVerificationErrorCode.ofRaw(it.toInt())
+        }
+      }
+      134.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           AgeVerificationMockConfig.fromList(it)
         }
       }
-      133.toByte() -> {
+      135.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           AgeVerificationResult.fromList(it)
         }
@@ -546,24 +615,32 @@ private open class AgeVerificationApiPigeonCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is AgeVerificationStatus -> {
+      is AgeSignalsAccessStatus -> {
         stream.write(129)
         writeValue(stream, value.raw.toLong())
       }
-      is AgeDeclarationSource -> {
+      is ApplicableAgeFeature -> {
         stream.write(130)
         writeValue(stream, value.raw.toLong())
       }
-      is AgeVerificationErrorCode -> {
+      is AgeVerificationStatus -> {
         stream.write(131)
         writeValue(stream, value.raw.toLong())
       }
-      is AgeVerificationMockConfig -> {
+      is AgeDeclarationSource -> {
         stream.write(132)
+        writeValue(stream, value.raw.toLong())
+      }
+      is AgeVerificationErrorCode -> {
+        stream.write(133)
+        writeValue(stream, value.raw.toLong())
+      }
+      is AgeVerificationMockConfig -> {
+        stream.write(134)
         writeValue(stream, value.toList())
       }
       is AgeVerificationResult -> {
-        stream.write(133)
+        stream.write(135)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -596,6 +673,26 @@ interface AgeVerificationApi {
    * Defaults to `false` (existing behavior).
    */
   fun verifyAge(ageGates: List<Long>?, skipEligibilityCheck: Boolean, callback: (Result<AgeVerificationResult>) -> Unit)
+  /**
+   * Returns the age-related features that apply to the current user.
+   *
+   * Android: wraps `AgeSignalsManager.getApplicableAgeFeatures()`. Contains
+   * [ApplicableAgeFeature.mandatorySharing] when the user is in a region
+   * where sharing age signals is mandatory; empty otherwise.
+   * iOS: always returns an empty list (or the mocked value in mock mode).
+   */
+  fun getApplicableAgeFeatures(callback: (Result<List<ApplicableAgeFeature>>) -> Unit)
+  /**
+   * Shows the Google Play in-app prompt asking the user to share their age
+   * range with this app, and returns the resulting sharing status.
+   *
+   * Android: wraps `AgeSignalsManager.requestAgeSignalsAccess()`. Call this
+   * before [verifyAge] so `checkAgeSignals` has signals to return. Requires
+   * the plugin to be attached to an Activity.
+   * iOS: returns [AgeSignalsAccessStatus.unspecified] without prompting —
+   * the iOS prompt is shown by [verifyAge] itself.
+   */
+  fun requestAgeSignalsAccess(callback: (Result<AgeSignalsAccessStatus>) -> Unit)
 
   companion object {
     /** The codec used by AgeVerificationApi. */
@@ -633,6 +730,42 @@ interface AgeVerificationApi {
             val ageGatesArg = args[0] as List<Long>?
             val skipEligibilityCheckArg = args[1] as Boolean
             api.verifyAge(ageGatesArg, skipEligibilityCheckArg) { result: Result<AgeVerificationResult> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AgeVerificationApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AgeVerificationApiPigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.age_verification.AgeVerificationApi.getApplicableAgeFeatures$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.getApplicableAgeFeatures{ result: Result<List<ApplicableAgeFeature>> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AgeVerificationApiPigeonUtils.wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(AgeVerificationApiPigeonUtils.wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.age_verification.AgeVerificationApi.requestAgeSignalsAccess$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.requestAgeSignalsAccess{ result: Result<AgeSignalsAccessStatus> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(AgeVerificationApiPigeonUtils.wrapError(error))

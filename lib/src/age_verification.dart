@@ -62,6 +62,40 @@ class AgeVerification {
     );
   }
 
+  /// Returns the age-related features that apply to the current user.
+  ///
+  /// **Android:** contains [ApplicableAgeFeature.mandatorySharing] when the
+  /// user is in a region where sharing age signals is mandatory (e.g. US-TX);
+  /// empty otherwise. Use this to decide whether to call
+  /// [requestAgeSignalsAccess] before [verifyAge].
+  ///
+  /// **iOS:** always returns an empty list (or the mocked value in mock mode).
+  ///
+  /// Throws a [PlatformException] whose `code` is an [AgeVerificationErrorCode]
+  /// name. Call [init] first or a `notInitialized` error is thrown.
+  Future<List<ApplicableAgeFeature>> getApplicableAgeFeatures() async {
+    return await _api.getApplicableAgeFeatures();
+  }
+
+  /// Shows the Google Play prompt asking the user to share their age range
+  /// with this app, and returns the resulting [AgeSignalsAccessStatus].
+  ///
+  /// **Android:** since age-signals 0.0.4, `verifyAge` only returns signals
+  /// the user has agreed to share — call this first. Returns
+  /// [AgeSignalsAccessStatus.shared] once the user shares,
+  /// [AgeSignalsAccessStatus.notShared] if they decline, or
+  /// [AgeSignalsAccessStatus.verificationRequired] if they must verify their
+  /// age first (regions with mandatory sharing). Needs a foreground Activity.
+  ///
+  /// **iOS:** returns [AgeSignalsAccessStatus.unspecified] without prompting;
+  /// the iOS age-range prompt is shown by [verifyAge] itself.
+  ///
+  /// Throws a [PlatformException] whose `code` is an [AgeVerificationErrorCode]
+  /// name. Call [init] first or a `notInitialized` error is thrown.
+  Future<AgeSignalsAccessStatus> requestAgeSignalsAccess() async {
+    return await _api.requestAgeSignalsAccess();
+  }
+
   /// Resolves a raw [PlatformException.code] string into an
   /// [AgeVerificationErrorCode], or `null` if it doesn't match a known value.
   static AgeVerificationErrorCode? resolveErrorCode(String? code) {

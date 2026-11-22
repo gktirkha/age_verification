@@ -8,6 +8,10 @@ const _initChannel =
     'dev.flutter.pigeon.age_verification.AgeVerificationApi.initialize';
 const _verifyAgeChannel =
     'dev.flutter.pigeon.age_verification.AgeVerificationApi.verifyAge';
+const _featuresChannel =
+    'dev.flutter.pigeon.age_verification.AgeVerificationApi.getApplicableAgeFeatures';
+const _accessChannel =
+    'dev.flutter.pigeon.age_verification.AgeVerificationApi.requestAgeSignalsAccess';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -311,6 +315,80 @@ void main() {
             (e) => e.code,
             'code',
             'NETWORK_ERROR',
+          ),
+        ),
+      );
+    });
+  });
+  // ---------------------------------------------------------------------------
+  // AgeVerification.getApplicableAgeFeatures
+  // ---------------------------------------------------------------------------
+  group('AgeVerification.getApplicableAgeFeatures', () {
+    tearDown(() => clearMock(_featuresChannel));
+
+    test('returns the features reported by the platform', () async {
+      mockSuccess(
+        _featuresChannel,
+        reply: [ApplicableAgeFeature.mandatorySharing],
+      );
+
+      final features = await AgeVerification.instance
+          .getApplicableAgeFeatures();
+      expect(features, [ApplicableAgeFeature.mandatorySharing]);
+    });
+
+    test('returns an empty list when no features apply', () async {
+      mockSuccess(_featuresChannel, reply: <ApplicableAgeFeature>[]);
+
+      expect(
+        await AgeVerification.instance.getApplicableAgeFeatures(),
+        isEmpty,
+      );
+    });
+
+    test('throws PlatformException on error reply', () async {
+      mockError(_featuresChannel, code: 'deviceNotSupported');
+
+      await expectLater(
+        AgeVerification.instance.getApplicableAgeFeatures(),
+        throwsA(
+          isA<PlatformException>().having(
+            (e) => e.code,
+            'code',
+            'deviceNotSupported',
+          ),
+        ),
+      );
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // AgeVerification.requestAgeSignalsAccess
+  // ---------------------------------------------------------------------------
+  group('AgeVerification.requestAgeSignalsAccess', () {
+    tearDown(() => clearMock(_accessChannel));
+
+    for (final status in AgeSignalsAccessStatus.values) {
+      test('returns ${status.name} from the platform', () async {
+        mockSuccess(_accessChannel, reply: status);
+
+        expect(
+          await AgeVerification.instance.requestAgeSignalsAccess(),
+          status,
+        );
+      });
+    }
+
+    test('throws PlatformException on error reply', () async {
+      mockError(_accessChannel, code: 'notInitialized');
+
+      await expectLater(
+        AgeVerification.instance.requestAgeSignalsAccess(),
+        throwsA(
+          isA<PlatformException>().having(
+            (e) => e.code,
+            'code',
+            'notInitialized',
           ),
         ),
       );

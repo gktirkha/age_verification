@@ -1,3 +1,20 @@
+## Unreleased
+
+### Android
+* Upgraded `com.google.android.play:age-signals` from 0.0.3 to 0.0.6
+* `AgeVerificationStatus` is now derived from `ageRangeSource` and `significantChangeStatus`, which replace `userStatus` (removed in age-signals 0.0.4): `TIER_C`/`TIER_D` → `verified`, `TIER_B` → `supervised`, `TIER_A` → `declared`, pending/declined significant change → `supervisedApprovalPending`/`supervisedApprovalDenied`, otherwise `unknown`
+* The plugin is now `ActivityAware`, which `requestAgeSignalsAccess()` needs to show the Play prompt
+
+### Dart
+* Added `AgeVerification.requestAgeSignalsAccess()` — shows the Google Play age-sharing prompt and returns an `AgeSignalsAccessStatus` (`shared`, `notShared`, `verificationRequired`, `unspecified`). On Android, call it before `verifyAge()`: since age-signals 0.0.4 Play only returns signals the user has agreed to share. On iOS it returns `unspecified` without prompting
+* Added `AgeVerification.getApplicableAgeFeatures()` — returns the `ApplicableAgeFeature`s that apply to the user (`mandatorySharing` in regions where sharing is mandatory). Always empty on iOS
+* Added `AgeVerificationErrorCode.deviceNotSupported`, mapped from the new `AgeSignalsErrorCode.DEVICE_NOT_SUPPORTED`
+* Added `accessStatus` and `applicableAgeFeatures` to `AgeVerificationMockConfig`
+
+### Docs
+* The README no longer tells host apps to add the age-signals dependency — the plugin brings it in
+* Android minimum version corrected to API 24, which age-signals requires
+
 ## 0.2.7
 
 ### Dart

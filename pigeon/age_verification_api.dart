@@ -28,10 +28,22 @@ class AgeVerificationMockConfig {
     this.ageUpper,
     this.source,
     this.installId,
+    this.accessStatus,
+    this.applicableAgeFeatures,
   });
 
   /// The status to return from [AgeVerificationApi.verifyAge].
   final AgeVerificationStatus status;
+
+  /// The status to return from [AgeVerificationApi.requestAgeSignalsAccess].
+  ///
+  /// Defaults to [AgeSignalsAccessStatus.shared] when null.
+  final AgeSignalsAccessStatus? accessStatus;
+
+  /// The features to return from [AgeVerificationApi.getApplicableAgeFeatures].
+  ///
+  /// Defaults to an empty list when null.
+  final List<ApplicableAgeFeature>? applicableAgeFeatures;
 
   /// Mocked inclusive lower bound of the age range.
   final int? ageLower;
@@ -72,6 +84,52 @@ abstract class AgeVerificationApi {
     List<int>? ageGates,
     bool skipEligibilityCheck = false,
   });
+
+  /// Returns the age-related features that apply to the current user.
+  ///
+  /// Android: wraps `AgeSignalsManager.getApplicableAgeFeatures()`. Contains
+  /// [ApplicableAgeFeature.mandatorySharing] when the user is in a region
+  /// where sharing age signals is mandatory; empty otherwise.
+  /// iOS: always returns an empty list (or the mocked value in mock mode).
+  @async
+  List<ApplicableAgeFeature> getApplicableAgeFeatures();
+
+  /// Shows the Google Play in-app prompt asking the user to share their age
+  /// range with this app, and returns the resulting sharing status.
+  ///
+  /// Android: wraps `AgeSignalsManager.requestAgeSignalsAccess()`. Call this
+  /// before [verifyAge] so `checkAgeSignals` has signals to return. Requires
+  /// the plugin to be attached to an Activity.
+  /// iOS: returns [AgeSignalsAccessStatus.unspecified] without prompting —
+  /// the iOS prompt is shown by [verifyAge] itself.
+  @async
+  AgeSignalsAccessStatus requestAgeSignalsAccess();
+}
+
+/// Sharing status returned by [AgeVerificationApi.requestAgeSignalsAccess].
+///
+/// Mirrors Google Play's `AgeSignalsStatus`.
+enum AgeSignalsAccessStatus {
+  /// No status was reported (always the case on iOS).
+  unspecified,
+
+  /// The user shared their age signals with the app.
+  shared,
+
+  /// The user did not share their age signals with the app.
+  notShared,
+
+  /// The user must verify their age before signals can be shared. Occurs in
+  /// regions where sharing is mandatory.
+  verificationRequired,
+}
+
+/// An age-related feature that applies to the current user.
+///
+/// Mirrors Google Play's `ApplicableAgeFeature`.
+enum ApplicableAgeFeature {
+  /// Sharing age signals is mandatory for this user (e.g. a regulated region).
+  mandatorySharing,
 }
 
 /// Data returned by the platform after querying age signals.

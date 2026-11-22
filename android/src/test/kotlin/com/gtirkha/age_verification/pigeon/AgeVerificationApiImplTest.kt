@@ -1,6 +1,9 @@
 package com.gtirkha.age_verification.pigeon
 
 import android.content.Context
+import com.google.android.play.agesignals.model.AgeRangeSource
+import com.google.android.play.agesignals.model.AgeSignalsStatus
+import com.google.android.play.agesignals.model.SignificantChangeStatus
 import org.mockito.Mockito.mock
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,10 +19,10 @@ class AgeVerificationApiImplTest {
 
     @Test
     fun verifyAge_beforeInitialize_returnsNotInitialisedError() {
-        val impl = AgeVerificationApiImpl(mockContext)
+        val impl = AgeVerificationApiImpl(mockContext) { null }
 
         var result: Result<AgeVerificationResult>? = null
-        impl.verifyAge(ageGates = null) { result = it }
+        impl.verifyAge(ageGates = null, skipEligibilityCheck = false) { result = it }
 
         assertNotNull(result)
         assertTrue(result!!.isFailure)
@@ -29,10 +32,10 @@ class AgeVerificationApiImplTest {
 
     @Test
     fun verifyAge_beforeInitialize_errorMessageMentionsInitialize() {
-        val impl = AgeVerificationApiImpl(mockContext)
+        val impl = AgeVerificationApiImpl(mockContext) { null }
 
         var result: Result<AgeVerificationResult>? = null
-        impl.verifyAge(ageGates = null) { result = it }
+        impl.verifyAge(ageGates = null, skipEligibilityCheck = false) { result = it }
 
         val error = assertIs<FlutterError>(result!!.exceptionOrNull())
         assertTrue(
@@ -46,10 +49,10 @@ class AgeVerificationApiImplTest {
         // In a JVM unit-test environment there are no Play Services, so
         // AgeSignalsManagerFactory.create(context) throws — the impl catches
         // it and wraps it as INIT_ERROR.
-        val impl = AgeVerificationApiImpl(mockContext)
+        val impl = AgeVerificationApiImpl(mockContext) { null }
 
         var result: Result<Unit>? = null
-        impl.initialize { result = it }
+        impl.initialize(mockConfig = null) { result = it }
 
         assertNotNull(result)
         assertTrue(result!!.isFailure)
@@ -59,12 +62,85 @@ class AgeVerificationApiImplTest {
 
     @Test
     fun initialize_onError_detailsAreNull() {
-        val impl = AgeVerificationApiImpl(mockContext)
+        val impl = AgeVerificationApiImpl(mockContext) { null }
 
         var result: Result<Unit>? = null
-        impl.initialize { result = it }
+        impl.initialize(mockConfig = null) { result = it }
 
         val error = assertIs<FlutterError>(result!!.exceptionOrNull())
         assertEquals(null, error.details)
+    }
+
+    @Test
+    fun getApplicableAgeFeatures_beforeInitialize_returnsNotInitialisedError() {
+        val impl = AgeVerificationApiImpl(mockContext) { null }
+
+        var result: Result<List<ApplicableAgeFeature>>? = null
+        impl.getApplicableAgeFeatures { result = it }
+
+        val error = assertIs<FlutterError>(result!!.exceptionOrNull())
+        assertEquals(AgeVerificationErrorCode.NOT_INITIALIZED.name, error.code)
+    }
+
+    @Test
+    fun requestAgeSignalsAccess_beforeInitialize_returnsNotInitialisedError() {
+        val impl = AgeVerificationApiImpl(mockContext) { null }
+
+        var result: Result<AgeSignalsAccessStatus>? = null
+        impl.requestAgeSignalsAccess { result = it }
+
+        val error = assertIs<FlutterError>(result!!.exceptionOrNull())
+        assertEquals(AgeVerificationErrorCode.NOT_INITIALIZED.name, error.code)
+    }
+
+    @Test
+    fun requestAgeSignalsAccess_withoutActivity_returnsApiError() {
+        val impl = AgeVerificationApiImpl(mockContext) { null }
+        impl.initialize(AgeVerificationMockConfig(status = AgeVerificationStatus.VERIFIED)) {}
+
+        var result: Result<AgeSignalsAccessStatus>? = null
+        impl.requestAgeSignalsAccess { result = it }
+
+        val error = assertIs<FlutterError>(result!!.exceptionOrNull())
+        assertEquals(AgeVerificationErrorCode.API_ERROR.name, error.code)
+        assertTrue(error.message?.contains("Activity") == true)
+    }
+
+    @Test
+    fun mapStatus_mapsAgeRangeSourceTiers() {
+        assertEquals(AgeVerificationStatus.DECLARED, AgeVerificationApiImpl.mapStatus(AgeRangeSource.TIER_A, null))
+        assertEquals(AgeVerificationStatus.SUPERVISED, AgeVerificationApiImpl.mapStatus(AgeRangeSource.TIER_B, null))
+        assertEquals(AgeVerificationStatus.VERIFIED, AgeVerificationApiImpl.mapStatus(AgeRangeSource.TIER_C, null))
+        assertEquals(AgeVerificationStatus.VERIFIED, AgeVerificationApiImpl.mapStatus(AgeRangeSource.TIER_D, null))
+        assertEquals(AgeVerificationStatus.UNKNOWN, AgeVerificationApiImpl.mapStatus(AgeRangeSource.UNSPECIFIED, null))
+        assertEquals(AgeVerificationStatus.UNKNOWN, AgeVerificationApiImpl.mapStatus(null, null))
+    }
+
+    @Test
+    fun mapStatus_significantChangeOverridesSource() {
+        assertEquals(
+            AgeVerificationStatus.SUPERVISED_APPROVAL_PENDING,
+            AgeVerificationApiImpl.mapStatus(AgeRangeSource.TIER_B, SignificantChangeStatus.PENDING),
+        )
+        assertEquals(
+            AgeVerificationStatus.SUPERVISED_APPROVAL_DENIED,
+            AgeVerificationApiImpl.mapStatus(AgeRangeSource.TIER_B, SignificantChangeStatus.DECLINED),
+        )
+        assertEquals(
+            AgeVerificationStatus.SUPERVISED,
+            AgeVerificationApiImpl.mapStatus(AgeRangeSource.TIER_B, SignificantChangeStatus.APPROVED),
+        )
+    }
+
+    @Test
+    fun mapAccessStatus_mapsAllValues() {
+        assertEquals(AgeSignalsAccessStatus.SHARED, AgeVerificationApiImpl.mapAccessStatus(AgeSignalsStatus.SHARED))
+        assertEquals(AgeSignalsAccessStatus.NOT_SHARED, AgeVerificationApiImpl.mapAccessStatus(AgeSignalsStatus.NOT_SHARED))
+        assertEquals(
+            AgeSignalsAccessStatus.VERIFICATION_REQUIRED,
+            AgeVerificationApiImpl.mapAccessStatus(AgeSignalsStatus.VERIFICATION_REQUIRED),
+        )
+        assertEquals(AgeSignalsAccessStatus.UNSPECIFIED, AgeVerificationApiImpl.mapAccessStatus(AgeSignalsStatus.UNSPECIFIED))
+        assertEquals(AgeSignalsAccessStatus.UNSPECIFIED, AgeVerificationApiImpl.mapAccessStatus(null))
     }
 }

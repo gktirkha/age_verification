@@ -15,7 +15,28 @@ class AgeVerificationApiImpl: AgeVerificationApi {
         self.mockConfig = mockConfig
         completion(.success(()))
     }
-    
+
+    /// Android-only concept (Google Play). Returns the mocked features in mock
+    /// mode, otherwise an empty list.
+    func getApplicableAgeFeatures(
+        completion: @escaping (Result<[ApplicableAgeFeature], Error>) -> Void
+    ) {
+        completion(.success(mockConfig?.applicableAgeFeatures ?? []))
+    }
+
+    /// Android-only concept (Google Play). On iOS the age-range prompt is shown
+    /// by `verifyAge`, so this returns the mocked status in mock mode, otherwise
+    /// `.unspecified` without prompting.
+    func requestAgeSignalsAccess(
+        completion: @escaping (Result<AgeSignalsAccessStatus, Error>) -> Void
+    ) {
+        if let mock = mockConfig {
+            completion(.success(mock.accessStatus ?? .shared))
+            return
+        }
+        completion(.success(.unspecified))
+    }
+
     func verifyAge(
         ageGates: [Int64]?, skipEligibilityCheck: Bool, completion: @escaping (Result<AgeVerificationResult, Error>) -> Void
     ) {

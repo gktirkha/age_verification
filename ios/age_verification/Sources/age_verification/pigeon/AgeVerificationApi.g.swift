@@ -174,6 +174,29 @@ func deepHashAgeVerificationApi(value: Any?, hasher: inout Hasher) {
 }
 
 
+/// Sharing status returned by [AgeVerificationApi.requestAgeSignalsAccess].
+///
+/// Mirrors Google Play's `AgeSignalsStatus`.
+enum AgeSignalsAccessStatus: Int {
+  /// No status was reported (always the case on iOS).
+  case unspecified = 0
+  /// The user shared their age signals with the app.
+  case shared = 1
+  /// The user did not share their age signals with the app.
+  case notShared = 2
+  /// The user must verify their age before signals can be shared. Occurs in
+  /// regions where sharing is mandatory.
+  case verificationRequired = 3
+}
+
+/// An age-related feature that applies to the current user.
+///
+/// Mirrors Google Play's `ApplicableAgeFeature`.
+enum ApplicableAgeFeature: Int {
+  /// Sharing age signals is mandatory for this user (e.g. a regulated region).
+  case mandatorySharing = 0
+}
+
 /// Outcome of an age verification request.
 enum AgeVerificationStatus: Int {
   /// The platform confirms the user meets the minimum age requirement.
@@ -301,6 +324,14 @@ enum AgeVerificationErrorCode: Int {
 struct AgeVerificationMockConfig: Hashable {
   /// The status to return from [AgeVerificationApi.verifyAge].
   var status: AgeVerificationStatus
+  /// The status to return from [AgeVerificationApi.requestAgeSignalsAccess].
+  ///
+  /// Defaults to [AgeSignalsAccessStatus.shared] when null.
+  var accessStatus: AgeSignalsAccessStatus? = nil
+  /// The features to return from [AgeVerificationApi.getApplicableAgeFeatures].
+  ///
+  /// Defaults to an empty list when null.
+  var applicableAgeFeatures: [ApplicableAgeFeature]? = nil
   /// Mocked inclusive lower bound of the age range.
   var ageLower: Int64? = nil
   /// Mocked inclusive upper bound of the age range.
@@ -314,13 +345,17 @@ struct AgeVerificationMockConfig: Hashable {
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ pigeonVar_list: [Any?]) -> AgeVerificationMockConfig? {
     let status = pigeonVar_list[0] as! AgeVerificationStatus
-    let ageLower: Int64? = nilOrValue(pigeonVar_list[1])
-    let ageUpper: Int64? = nilOrValue(pigeonVar_list[2])
-    let source: AgeDeclarationSource? = nilOrValue(pigeonVar_list[3])
-    let installId: String? = nilOrValue(pigeonVar_list[4])
+    let accessStatus: AgeSignalsAccessStatus? = nilOrValue(pigeonVar_list[1])
+    let applicableAgeFeatures: [ApplicableAgeFeature]? = nilOrValue(pigeonVar_list[2])
+    let ageLower: Int64? = nilOrValue(pigeonVar_list[3])
+    let ageUpper: Int64? = nilOrValue(pigeonVar_list[4])
+    let source: AgeDeclarationSource? = nilOrValue(pigeonVar_list[5])
+    let installId: String? = nilOrValue(pigeonVar_list[6])
 
     return AgeVerificationMockConfig(
       status: status,
+      accessStatus: accessStatus,
+      applicableAgeFeatures: applicableAgeFeatures,
       ageLower: ageLower,
       ageUpper: ageUpper,
       source: source,
@@ -330,6 +365,8 @@ struct AgeVerificationMockConfig: Hashable {
   func toList() -> [Any?] {
     return [
       status,
+      accessStatus,
+      applicableAgeFeatures,
       ageLower,
       ageUpper,
       source,
@@ -340,12 +377,14 @@ struct AgeVerificationMockConfig: Hashable {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return deepEqualsAgeVerificationApi(lhs.status, rhs.status) && deepEqualsAgeVerificationApi(lhs.ageLower, rhs.ageLower) && deepEqualsAgeVerificationApi(lhs.ageUpper, rhs.ageUpper) && deepEqualsAgeVerificationApi(lhs.source, rhs.source) && deepEqualsAgeVerificationApi(lhs.installId, rhs.installId)
+    return deepEqualsAgeVerificationApi(lhs.status, rhs.status) && deepEqualsAgeVerificationApi(lhs.accessStatus, rhs.accessStatus) && deepEqualsAgeVerificationApi(lhs.applicableAgeFeatures, rhs.applicableAgeFeatures) && deepEqualsAgeVerificationApi(lhs.ageLower, rhs.ageLower) && deepEqualsAgeVerificationApi(lhs.ageUpper, rhs.ageUpper) && deepEqualsAgeVerificationApi(lhs.source, rhs.source) && deepEqualsAgeVerificationApi(lhs.installId, rhs.installId)
   }
 
   func hash(into hasher: inout Hasher) {
     hasher.combine("AgeVerificationMockConfig")
     deepHashAgeVerificationApi(value: status, hasher: &hasher)
+    deepHashAgeVerificationApi(value: accessStatus, hasher: &hasher)
+    deepHashAgeVerificationApi(value: applicableAgeFeatures, hasher: &hasher)
     deepHashAgeVerificationApi(value: ageLower, hasher: &hasher)
     deepHashAgeVerificationApi(value: ageUpper, hasher: &hasher)
     deepHashAgeVerificationApi(value: source, hasher: &hasher)
@@ -436,24 +475,36 @@ private class AgeVerificationApiPigeonCodecReader: FlutterStandardReader {
     case 129:
       let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
       if let enumResultAsInt = enumResultAsInt {
-        return AgeVerificationStatus(rawValue: enumResultAsInt)
+        return AgeSignalsAccessStatus(rawValue: enumResultAsInt)
       }
       return nil
     case 130:
       let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
       if let enumResultAsInt = enumResultAsInt {
-        return AgeDeclarationSource(rawValue: enumResultAsInt)
+        return ApplicableAgeFeature(rawValue: enumResultAsInt)
       }
       return nil
     case 131:
       let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
       if let enumResultAsInt = enumResultAsInt {
-        return AgeVerificationErrorCode(rawValue: enumResultAsInt)
+        return AgeVerificationStatus(rawValue: enumResultAsInt)
       }
       return nil
     case 132:
-      return AgeVerificationMockConfig.fromList(self.readValue() as! [Any?])
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return AgeDeclarationSource(rawValue: enumResultAsInt)
+      }
+      return nil
     case 133:
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return AgeVerificationErrorCode(rawValue: enumResultAsInt)
+      }
+      return nil
+    case 134:
+      return AgeVerificationMockConfig.fromList(self.readValue() as! [Any?])
+    case 135:
       return AgeVerificationResult.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
@@ -463,20 +514,26 @@ private class AgeVerificationApiPigeonCodecReader: FlutterStandardReader {
 
 private class AgeVerificationApiPigeonCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
-    if let value = value as? AgeVerificationStatus {
+    if let value = value as? AgeSignalsAccessStatus {
       super.writeByte(129)
       super.writeValue(value.rawValue)
-    } else if let value = value as? AgeDeclarationSource {
+    } else if let value = value as? ApplicableAgeFeature {
       super.writeByte(130)
       super.writeValue(value.rawValue)
-    } else if let value = value as? AgeVerificationErrorCode {
+    } else if let value = value as? AgeVerificationStatus {
       super.writeByte(131)
       super.writeValue(value.rawValue)
-    } else if let value = value as? AgeVerificationMockConfig {
+    } else if let value = value as? AgeDeclarationSource {
       super.writeByte(132)
+      super.writeValue(value.rawValue)
+    } else if let value = value as? AgeVerificationErrorCode {
+      super.writeByte(133)
+      super.writeValue(value.rawValue)
+    } else if let value = value as? AgeVerificationMockConfig {
+      super.writeByte(134)
       super.writeValue(value.toList())
     } else if let value = value as? AgeVerificationResult {
-      super.writeByte(133)
+      super.writeByte(135)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -519,6 +576,22 @@ protocol AgeVerificationApi {
   /// unreliable results from that API in your region. Has no effect on Android.
   /// Defaults to `false` (existing behavior).
   func verifyAge(ageGates: [Int64]?, skipEligibilityCheck: Bool, completion: @escaping (Result<AgeVerificationResult, Error>) -> Void)
+  /// Returns the age-related features that apply to the current user.
+  ///
+  /// Android: wraps `AgeSignalsManager.getApplicableAgeFeatures()`. Contains
+  /// [ApplicableAgeFeature.mandatorySharing] when the user is in a region
+  /// where sharing age signals is mandatory; empty otherwise.
+  /// iOS: always returns an empty list (or the mocked value in mock mode).
+  func getApplicableAgeFeatures(completion: @escaping (Result<[ApplicableAgeFeature], Error>) -> Void)
+  /// Shows the Google Play in-app prompt asking the user to share their age
+  /// range with this app, and returns the resulting sharing status.
+  ///
+  /// Android: wraps `AgeSignalsManager.requestAgeSignalsAccess()`. Call this
+  /// before [verifyAge] so `checkAgeSignals` has signals to return. Requires
+  /// the plugin to be attached to an Activity.
+  /// iOS: returns [AgeSignalsAccessStatus.unspecified] without prompting —
+  /// the iOS prompt is shown by [verifyAge] itself.
+  func requestAgeSignalsAccess(completion: @escaping (Result<AgeSignalsAccessStatus, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -577,6 +650,50 @@ class AgeVerificationApiSetup {
       }
     } else {
       verifyAgeChannel.setMessageHandler(nil)
+    }
+    /// Returns the age-related features that apply to the current user.
+    ///
+    /// Android: wraps `AgeSignalsManager.getApplicableAgeFeatures()`. Contains
+    /// [ApplicableAgeFeature.mandatorySharing] when the user is in a region
+    /// where sharing age signals is mandatory; empty otherwise.
+    /// iOS: always returns an empty list (or the mocked value in mock mode).
+    let getApplicableAgeFeaturesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.age_verification.AgeVerificationApi.getApplicableAgeFeatures\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      getApplicableAgeFeaturesChannel.setMessageHandler { _, reply in
+        api.getApplicableAgeFeatures { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      getApplicableAgeFeaturesChannel.setMessageHandler(nil)
+    }
+    /// Shows the Google Play in-app prompt asking the user to share their age
+    /// range with this app, and returns the resulting sharing status.
+    ///
+    /// Android: wraps `AgeSignalsManager.requestAgeSignalsAccess()`. Call this
+    /// before [verifyAge] so `checkAgeSignals` has signals to return. Requires
+    /// the plugin to be attached to an Activity.
+    /// iOS: returns [AgeSignalsAccessStatus.unspecified] without prompting —
+    /// the iOS prompt is shown by [verifyAge] itself.
+    let requestAgeSignalsAccessChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.age_verification.AgeVerificationApi.requestAgeSignalsAccess\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestAgeSignalsAccessChannel.setMessageHandler { _, reply in
+        api.requestAgeSignalsAccess { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      requestAgeSignalsAccessChannel.setMessageHandler(nil)
     }
   }
 }

@@ -5,4 +5,6 @@ export 'src/pigeon/age_verification_api.g.dart'
         AgeVerificationMockConfig,
         AgeVerificationStatus,
         AgeDeclarationSource,
-        AgeVerificationErrorCode;
+        AgeVerificationErrorCode,
+        AgeSignalsAccessStatus,
+        ApplicableAgeFeature;

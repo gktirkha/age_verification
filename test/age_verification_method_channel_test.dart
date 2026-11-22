@@ -42,6 +42,50 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
+  // AgeVerificationMockConfig access fields
+  // ---------------------------------------------------------------------------
+  group('AgeVerificationMockConfig', () {
+    test('encodes and decodes access and feature fields', () {
+      final config = AgeVerificationMockConfig(
+        status: AgeVerificationStatus.unknown,
+        accessStatus: AgeSignalsAccessStatus.verificationRequired,
+        applicableAgeFeatures: [ApplicableAgeFeature.mandatorySharing],
+      );
+      expect(AgeVerificationMockConfig.decode(config.encode()), equals(config));
+    });
+
+    test('access and feature fields default to null', () {
+      final config = AgeVerificationMockConfig(
+        status: AgeVerificationStatus.verified,
+      );
+      expect(config.accessStatus, isNull);
+      expect(config.applicableAgeFeatures, isNull);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // AgeSignalsAccessStatus / ApplicableAgeFeature
+  // ---------------------------------------------------------------------------
+  group('AgeSignalsAccessStatus', () {
+    test('mirrors Play AgeSignalsStatus', () {
+      expect(AgeSignalsAccessStatus.values.map((e) => e.name), [
+        'unspecified',
+        'shared',
+        'notShared',
+        'verificationRequired',
+      ]);
+    });
+  });
+
+  group('ApplicableAgeFeature', () {
+    test('mirrors Play ApplicableAgeFeature', () {
+      expect(ApplicableAgeFeature.values.map((e) => e.name), [
+        'mandatorySharing',
+      ]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // AgeVerificationErrorCode
   // ---------------------------------------------------------------------------
   group('AgeVerificationErrorCode', () {
